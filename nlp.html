@@ -1,0 +1,348 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Simpsons Say NLP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Main</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Projects</a></li>
+							<li class="active"><a href="generic.html">Bio</a></li>
+							<li><a href="elements.html">Elements Reference</a></li>
+							<li><a target="_blank" href="Resume Curry 2018.pdf">Resume</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+							<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+                                    <h1>Simpsons Say<br /></h1>
+                                    <p> A Natural Language Processing search engine using Term Frequency minus Inverse Document Frequency (TF-IDF) and k-Nearest Neighbors (k-NN).</p>
+                                </header>
+                                <div class="image main"><img src="images/ebola_overview.png" alt="" /></div>
+                                <p>After several months of working mostly alone through a combination of crash-course materials in Machine Learning, and reviewing Stats and Linear Algebra, I was ready to team up with a handful of my friends and apply what I was learning to something fun. I figured out pretty quickly that I was speaking an entirely different language than my web-dev buddies; I had primarily been living in the temperate climate of Python, and they had been lounging on the beaches of JavaScript. We had to start by talking in broad-strokes. We decided to do something to do with the Simpsons, and as it turned out transcripts for all 673 episodes were readily available to play with.
+                                </p>
+                                <p>Our idea was a web app that targeted Simpsons fans. As a baseline, we could build some kind of a quote finder. The user could give the gist of a something said on a Simpsons episode and our search engine would produce the most similar Simpsons quotes - something like how  Soundhound finds songs when a user hums their best impression of a song they can't get out of their head
+                                </p>
+                                <p>At this point, I had about two days of exposure to Natural Language Processing (NLP), and I had no idea how to get my model to interact with our web app being developed. I hadn't really though about what an API is until I started this project. After about a day of stumbling through google searches and fumbling my way through stack-overflow posts, it became apparent that I was going to have to figure it out - I needed an API to feed the results of my model, written in Python, over to my web developers. I'd built a couple flask web apps. Building a flask api was not terribly different - instead of a html front end, the routes in the flask app serve as End Points to connects to the web folk.
+                                </p>
+                
+								
+                                <p>
+                                    <header>
+										<h4>Natural Language Processing</h4>
+                                    </header>
+                                    <p>The first step to applying any math to a collection of words is to tokenize  them - we  identify which blobs of charters represent a word disregarding capitalization and punctuation and transform all those carefully composed sentences and paragraphs into nothing more than a list of words separated by commas. Then we can throw out stopwords - words that are not particularly helpful in determining what makes a document unique. If we are comparing collections of words, then what makes one document different than another can be viewed not only as the word counts, but the subtle mapping of these words. To start to dig into these subtle word maps, in this project I used spaCy. Among many other powerful tools not used here, I have used spaCy's list of stopwords in my tokenizing function.
+									</p>
+									<p>
+									First, I instantiated spaCy and borrowed a collection of stop words from it.
+									</p>
+                                <!-- Preformatted Code -->
+								<pre><code>nlp = spacy.load('en_core_web_lg')
+STOPWORDS = nlp.Defaults.stop_words.union({' ', ''})</code></pre>
+                                   <p>
+									I created a tokenizing function that applies some basic regex, python string processing, and uses spacy to do the heavy lifting of the actual tokenization.
+								   </p>
+                                   <pre><code>def tokenize(doc):
+    text = re.sub(r'[^a-zA-Z ]', '', doc)
+    text = text.lower()
+    tokenizer = spacy.tokenizer.Tokenizer(nlp.vocab)
+    tokens = tokenizer(text)
+    list_of_tokens = [t for t in tokens if (str(t) not in STOPWORDS) and (t.is_punct == False)]
+    return (list_of_tokens)</code></pre>                                   
+
+                                </p>
+								<p>
+									SpaCy is a pretty big package and has to be run locally. At the beginning of this project, I made the mistake of trying to include it in my project's pip environment. Even alone without the other project models, it was far too big to be deployed. There are more compact versions of the spaCy package that might be added to the final pickled model to live in the deployed app. In this case, I simply used spaCy to tokenize my words and used another package vectorize them and mess with the language mapping, which spaCy has quite a bit of documentation on.
+								</p>
+								<p>
+									Before vectorizing any words, I integrated my tokenized words back into my dataframe, by creating a new column that applies my tonkenize function above to each line from the Simpsons.
+								</p>
+								<pre><code>df['tokens'] = df['spoken_words'].apply(tokenize)</code></pre>
+								<p>
+									<span class="image right"><img src="images\tfidf.png" alt="" /></span>
+									<p>
+										In order to do some powerful black-box-magic mathematical wizardry, I used sklearn's TF-IDF vectorizer. A rudenmetary way of vectorizing a set of words would be to simply count the occurrence of each word in a collection and compare it to other collections. These counts could be represented as a sparse matrix, mostly of zeros, counting the occurance of each particular word in a collection. With my more wizardry, this sparse matrix can be crunched down into a "dense matrix" that preserve the same essential information about word counts, but is easier to push through ML models. What makes Term Frequency - Inverse Document Frequency (TF-IDF) unique is that it finds the most important words, or lemmas, for identifying what makes a document unique. It does so by penalizing the term frequencies of words that are common across all documents which allows for each document's most different topics to rise to the top.
+									</p>
+								</p>
+								<p>
+									Still exploring in my Jupyter notebook, I instantiate sklearn's TF-IDF vectorizer.
+								</p>
+								<pre><code>from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Instantiate vectorizer object
+tfidf = TfidfVectorizer(stop_words=STOPWORDS, lowercase=True, min_df=0.005, max_df=0.95)</code></pre>
+								<p>
+									I then create a sparse matrix, convert it to a dense matrix, and convert the results into an inspect-able dataframe.
+								</p>
+								<pre><code># Create a vocabulary and get word counts per document
+sparse = tfidf.fit_transform(df['spoken_words'])
+
+# Get feature names to use as dataframe column headers
+dtm = pd.DataFrame(sparse.todense(), columns=tfidf.get_feature_names())
+
+# View Feature Matrix as DataFrame
+dtm.head()</code></pre>
+								<p>
+									From here, applying a kNN model is as simple as instantiating and fitting it to the above dataframe:
+								</p>
+								<pre><code># Instantiate kNN
+from sklearn.neighbors import NearestNeighbors
+
+# Fit on TF-IDF Vectors
+nn  = NearestNeighbors(n_neighbors=5, algorithm='ball_tree')
+nn.fit(dtm)</code></pre>
+								<p>
+									So, presumably it's working, but to see the results we have to create a quote to find similarity to:
+								</p>
+								<pre><code>in_text = 'got a lovely bunch of coconuts. there they are standing in a row'
+
+# Query for similiar quotes...
+new = tfidf.transform([in_text])
+finder = nn.kneighbors(new.todense())</code></pre>
+								<p>
+									This creates a python object that we then look into. At position 1, this object reveals the position of the text in our original dataframe that our quote is similar to. So,
+								</p>
+								<pre><code>finder[1]</code></pre>
+								<p>
+									drops us an of the location numbers where the most simular quotes according to the kNN model. The array looks like this:
+								</p>
+								<pre><code>array([[444, 891, 702, 277, 611]])</code></pre>
+								<p>
+									We can filter our original dataframe using these numbers to find the most simular quotes to our input text. For example:
+								</p>
+								<pre><code>df['spoken_words'][891]</code></pre>
+								<h4>Here are the results of all our hard work</h4>
+								<p>
+									"Now, that's odd. I've just robbed a man of his livelihood, and yet I feel strangely empty. Tell you what, Smithers. Have him beaten to a pulp."
+								</p>
+								<p>
+									"Tell you what. I'll show you something very special if you promise to put your grubby little hands behind your back and keep 'em there."
+								</p>
+								<p>
+									"It's no use, fellows. Another comic book has returned to the earth from whence it came."
+								</p>
+								<p>
+									'Go on, Neddie.'
+								</p>
+								<p>
+									'Nah.'
+								</p>
+								<p>
+									Well, that was interesting, but I'm not entirely confident on the qaulity of these results. 
+								</p>
+
+								<br>
+                                <p>
+                                    <header>
+										<h4>Flask API deployed on Heroku</h4>
+                                    </header>
+									<p>
+										The first step to building out our model's API was to create a model.py file with a condensed version of the code above as a single function that takes input text and outputs one simulacra quote in JSON format. At some point, this big function needed to account for the possibility of a blank submission, which the if/else statement accounts for. Otherwise, the function below condensed version of the work above.
+									</p>
+                                <!-- Preformatted Code -->
+								<pre><code>def get_quote(input_text):
+    '''
+    function to find most similar quote to input text
+    if input text is blank, a quote is chosen at random
+    row of dataframe containing similar quote is returned in json format
+    '''
+
+    if input_text == '':
+
+        # gets the index of a random quote in the DataFrame
+        rand_index = np.random.randint(len(df))
+
+        # gets the row containing the quote
+        quote_row = df.iloc[rand_index]
+
+        # converts output to json
+        json_output = quote_row.to_json()
+
+        return(json_output)
+
+    else:
+        # creates vector of input text
+        quote_vec = tfidf.transform([input_text])
+
+        # gets an object that contains the index values for similar quotes
+        similar_quotes = nn_model.kneighbors(quote_vec.todense())[1][0]
+
+        # generates a number to select out of the most similar quotes at random
+        i = np.random.randint(len(similar_quotes))
+
+        # gets the index value for the selected quote
+        similar_index = similar_quotes[i]
+
+        # gets the quote from the dataframe and returns it
+        quote_row = df.iloc[similar_index]
+
+        # converts output to json
+        json_output = quote_row.to_json()
+
+        return(json_output)</code></pre>
+									<p>
+										The trick to making the flask app into an API was to create a route that served as an endpoint. The web side of the project sends a GET request in the form of input text. The retrieval function in this route plugs the input text into the get_quote function above and returns the JSON object.
+									</p>
+                                   <pre><code>@app.route('/input', methods=['GET'])
+def retrieval():
+	try:
+		if request.method == 'GET':
+			text = request.args.get('input_text')  # If no key then null
+			output = get_quote(text)
+			return output  # This is now the input variable into the model
+	except Exception as e:
+		# Unfortunately I'm not going to wrap this in indv. strings
+		r = Response(response=error_msg+str(e),
+						status=404,
+						mimetype="application/xml")
+		r.headers["Content-Type"] = "text/json; charset=utf-8"
+		return r</code></pre>                                   
+
+                                </p>
+								<br>
+                                <p>
+                                    <header>
+										<h4>Homer quote generator using a neural network</h4>
+                                    </header>
+                                    Block of text ... Keras ...
+                                <!-- Preformatted Code -->
+								<pre><code>laikdskjahsdf
+adluofhsdkjh</code></pre>
+                                   Block of text ... tokenizer ...
+                                   <pre><code>akjsdfkjha
+alkjsdhfkajsdh</code></pre>                                   
+
+                                </p>
+                                <br></br>
+
+                                
+								<pre><code>
+# create vectorizer
+tfidf = TfidfVectorizer(stop_words='english',
+lowercase=True,
+min_df=0.003)
+
+
+# create sparse matrix of lemmas
+sparse = tfidf.fit_transform(df['spoken_words'])
+
+
+# create dense matrix from sparse matrix
+dense = sparse.todense()
+
+
+# create dataframe from dense matrix\
+dense_df = pd.DataFrame(dense, columns=tfidf.get_feature_names())
+
+
+# create NearestNeighbors model and fits it to dense dataframe
+nn_model = NearestNeighbors(n_neighbors=24,
+leaf_size=358,  # arbitrary number
+algorithm='kd_tree')
+nn_model.fit(dense_df)
+
+
+# pickles the models for use in app to avoid training more than once
+dump(tfidf, 'tfidf.joblib')
+dump(nn_model, 'nn_model.joblib')
+                                                                    </code></pre>
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<!-- <section>
+							<form method="post" action="#">
+								<div class="fields">
+									<div class="field">
+										<label for="name">Name</label>
+										<input type="text" name="name" id="name" />
+									</div>
+									<div class="field">
+										<label for="email">Email</label>
+										<input type="text" name="email" id="email" />
+									</div>
+									<div class="field">
+										<label for="message">Message</label>
+										<textarea name="message" id="message" rows="3"></textarea>
+									</div>
+								</div>
+								<ul class="actions">
+									<li><input type="submit" value="Send Message" /></li>
+								</ul>
+							</form>
+						</section> -->
+						<section class="split contact">
+							<!-- <section class="alt">
+								<h3>Address</h3>
+								<p>1234 Somewhere Road #87257<br />
+								Nashville, TN 00000-0000</p>
+							</section> -->
+							<section>
+								<h3>Phone</h3>
+								<p><a href="#">(000) 000-0000</a></p>
+							</section>
+							<section>
+								<h3>Email</h3>
+								<p><a href="#">info@untitled.tld</a></p>
+							</section>
+							<section>
+								<h3>Social</h3>
+								<ul class="icons alt">
+									<li><a href="https://www.linkedin.com/in/michael-curry-7ab92118a/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="https://medium.com/@mdcurry1138" class="icon brands alt fa-medium"><span class="label">Medium</span></a></li>
+									<li><a href="https://twitter.com/MikeDCurry" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+									<li><a href="https://github.com/mikedcurry" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>Michael Curry</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -44,20 +44,37 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-                                    <h1>Project Name<br /></h1>
+                                    <h1>Community Risk Factors of Ebola<br /></h1>
                                     <p> Generic Overview of the project here</p>
                                 </header>
-                                <p>Block of Text
+                                <p>Towards the end of the 2014-16 Ebola outbreak in West Africa the 
+                                    American Red Cross together with its local partners extensively 
+                                    urveyed communities within a 15-kilometer distance of the shared 
+                                    borders between Guinea, Liberia, and Sierra Leone. The information 
+                                    from this survey continues to serve as a fireline for containment 
+                                    of the infection.
                                 </p>
-                                <p>Block of text
+                                <p>The maps below give an overview of the 7,200 communities surveyed. 
+                                    In the first map, each dot represents a community, with red 
+                                    representing a community that reported at least one case of Ebola 
+                                    during the outbreak.
                                 </p>
                                 
 								<div class="image main"><img src="images/ebola_overview.png" alt="" /></div>
                                 <p><span class="image right"><img src="images\distribution10.png" alt="" /></span>
                                     <header>
-										<h4>Section Heading, image to right</h4>
+										<h4>Model Metrics</h4>
 									</header>
-                                   Block of text
+                                    The plot to the right represents the distribution of infection
+                                    probabilities. Note the right skew of the data; only 0.5% 
+                                    of communities surveyed had cases of Ebola infection. Even at an initial 
+                                    96% "accuracy", the predictive model is insufficiently tuned to identify 
+                                    communities at risk. 
+                                    To properly adjust for the low probability of infection, the predicitve threshold of the model
+                                    was set to 10%. Communities identified as at risk are up to 90%
+                                    unlikely to have an infect.
+                                    [Below], adjust the model threshold to see the effect on model predictions. </p>
+
                                 <p style="padding: 0 0 0 0"><span class="image left"><img src="images\heatmap10.png" alt="" /></span>
                                     <header>
 										<h4>Recall / Precision Tradeoff</h4>
@@ -74,7 +91,7 @@
                                 <br></br>
                                 <span class="image left"><img src="images\permutation_importance.jpg" alt="" /></span>
                                     <header>
-										<h4>Section 2, image to left </h4>
+										<h4>Predictive Factors of Infection</h4>
 									</header>
                                     After running a cleaned the survey data through a selected model 
                                     (XGBClassier), the relative predictive power of each variable was assessed and 
