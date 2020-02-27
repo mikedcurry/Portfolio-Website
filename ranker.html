@@ -47,18 +47,19 @@
                                     <h1>Live in the Best Place</h1>
                                     <h4>An App to Rank Cities based upon user selected factors</h4>
 								</header>
-								
+								<h4>Project Roles and Objectives</h4>
                                 <p>This project was put together over the course of eight weeks by a team of 14 students with four disciplines - UX, iOS, Full Stack Web, and Data Science. We were given two weeks to plan, five weeks to build, and one week to clean and present our documentation. Much of the user research and data collection had been done by a previous team. There were two DS students on this team. Between the two of us, my role was to clean data, build a model for sorting cities by multiple factors, and to create data visualizations. My DS partner worked primarily on building our API to connect our model to both the iOS and web teams. I spent most of the five weeks of build-time alternating between Jupyter Notebooks and pair programming with my DS partner to integrate my work into our API.
                                 </p>
                                 
 								<div class="image main"><img src="images\RankerFilter.JPG" alt="" /></div>
 
-                                <header>
-                                    <h4>.kjsdglakgsd  asdgjsgd df gsdghhjsdffg</h4>
-                                </header>
+
 								<p>
 									After a day of initial data wrangling, I cleaned and reduced our data to the largest 256 US cities with populations of about one hundred thousand or larger. Our API would give our web developers access to 189 city features ranging from: crime safety ratings, economic growth factors, school ratings, diversity, air quality, etc. 
 								</p>
+								<header>
+                                    <h4>First Steps: ranking cities by multiple factors</h4>
+                                </header>
 								<p>
 									The overall goal was for the first release cycle was for our model to return a list of top recommendations based upon which factors a user selected as important to them. The hope was to eventually add sliders to each selected feature, to be able to weigh relative importance of each factor. Even with this relatively tiny data set and without adding weighted relative importance, the number of possible ranked lists based exceeds 3*10³⁴⁹; my team needed a live model. 
 								</p>
@@ -82,11 +83,29 @@ def rankify(df, factors, top=10, quant=.75):
 								<p>
 									Although the results from this initial function had some pretty glaring issues, by handing over this minimally viable product to my team, they were able to start working on integrating it into our app, while I improved my model and further cleaned my data.
 								</p>
+								<header>
+                                    <h4>Issues to Resolve</h4>
+                                </header>
 								<p>
-									Issues - 1. Different factors were on vastly difference scales. For example, population might vary on the scale of millions, while economic growth usually  varies on partial  percentages. Whichever factor had the biggest numbers had the biggest influence on the overall rank. To begin to fix this, I used a min-max scaler, shrinking the range of values for all factors to be from zero to one. 2. While I pushed these slight improvements, another issue occurred to me - distribution.
+									1. Different factors were on vastly difference scales. For example, 
+									population might vary on the scale of millions, while economic growth usually  
+									varies on partial  percentages. Initially, whichever factor had the biggest numbers had 
+									the biggest influence on the overall rank. To begin to fix this, I used a 
+									min-max scaler, shrinking values for all factors to a range of zero 
+									to one. 
 								</p>
+								<p>2. While I pushed these slight improvements, another issue occurred to me -
+									 distribution. Since distributions were not all skewed in the same direction, 
+									comparing the upper quartile of each factor once again resulted in a varied range.
+									This time, the model favored factors with a right skew in distribution. I then 
+									turned to a robust scaler, that redistributed each quartile, but the results still
+									somewhat biased towards certain initial distributions. 
+								</p>
+
 								<!-- Preformatted Code -->
-								<pre><code>import numpy as np
+								<pre><code>#Transforming data to compare factors fairly
+									
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 # from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import RobustScaler
@@ -115,7 +134,12 @@ x_scaled = mms.fit_transform(x)
 df_temp = pd.DataFrame(x_scaled, columns=numeric.columns, index = robust_df.index)
 robust_df[numeric.columns] = df_temp</code></pre>
 								<p>
-									Even while the scale was made the same between factors, the skew of distribution was widely different from one factor to another. If a factor had a strong right-skew (left leaning) distribution, then the resulting upper quartile was had a bigger range than if it were left-skewed. This gave more influence to factors with right-leaning distributions. After playing with a number of scalars and normalizers, the best results were given by sklearn's Robust Scaler. However, even it was not completely fair between factors due to irregularities in distributions.
+									Even while the scale was made the same between factors, the skew of 
+									distribution was widely different from one factor to another. If a 
+									factor had a strong right-skew (left leaning) distribution, then the 
+									resulting upper quartile was had a bigger range than if it were left-skewed. 
+									This gave more influence to factors with right-leaning distributions. I had 
+									to find a way to create perfectly uniform distributions for each factor. 
 								</p>
 								
 								<span class="image left"><img src="images\flat_dist.png" alt="" /></span>
@@ -123,12 +147,40 @@ robust_df[numeric.columns] = df_temp</code></pre>
                                     <h4>A simple solution to produce a flat distribution</h4>
                                 </header>
                                 <p>
-									Finally, it occurred to me that what I was looking for was a flat distribution which could be accomplished much easier by simply ranking each factor using pandas own built-in .rank() function.                     
+									Finally, it occurred to me that what I was looking for was a flat distribution 
+									which could be accomplished much more easily by ranking each factor 
+									using pandas own built-in .rank() function. In this way, each factor had scale between
+									0 and 1 with each city equally distributed in percentile rank. When plotted, the distribution became 
+									square.                
 								</p>
-								
+								<p>
+									By the time I had resolved these issues with data distribution, my Data Science
+									partner had developed a rudamentary flask API, deployed it Heroku, and was serving 
+									results from my initial function to the Front End of our Web Dev team. Even while the 
+									initial results were none-sensical the team was able to build around the model until it 
+									was improved. Updated the data base to improve the results was a seemless push, with 
+									complete seperation of our respective concerns. Then when the average was taken across multiple
+									factors no bias was given. 
+								</p>
+								<br>
+								<h4>Release Cycle 2: Data Visualization</h4>
+								<p>
+									The goal of the second release cycle was to provide users with further insight into 
+									how cities compared accross multiple factors. Once the user had selected their factors,
+									our model provided a top ten list of recommended cities. Our data visuals, in turn, was
+									to give the user a breakdown of each factor in comparison to other cities. 
+								</p>
 								<div class="image main"><img src="images\stacked_bar.png" alt="" /></div>
-								<div class="image main"><img src="images\ViolinPlot.png" alt="" /></div>
-								<div class="image main"><img src="images\swarm_violin.png" alt="" /></div>
+								<p>
+									Our first itereation was the most simple - a vertically stacked bar chart. A user could see,
+									for example, that Portland ranks higher than Pittsburgh when combining each selected factor,
+									but that the cost of living and economic growth rates are far superior in Pittspurgh.
+								</p>
+								<span class="image right">
+									<div class="image main"><img src="images\ViolinPlot.png" alt="" /></div>
+									<div class="image main"><img src="images\swarm_violin.png" alt="" /></div>
+								</span>
+								alkiudsgfkah
 								<div class="image main"><img src="images\slug_plot.png" alt="" /></div>
 								<div class="image main"><img src="images\radial_bargraph.png" alt="" /></div>
 								<!-- Preformatted Code -->
