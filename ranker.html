@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>City Ranker App</title>
+		<title>City Finder App</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -44,92 +44,150 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-                                    <h1>Live in the Best Place<br /></h1>
-                                    <p> Generic Overview of the project here</p>
-                                </header>
-                                <p>Block of Text
-                                </p>
-                                <p>Block of text
+                                    <h1>Live in the Best Place</h1>
+                                    <h4>An App to Rank Cities based upon user selected factors</h4>
+								</header>
+								
+                                <p>This project was put together over the course of eight weeks by a team of 14 students with four disciplines - UX, iOS, Full Stack Web, and Data Science. We were given two weeks to plan, five weeks to build, and one week to clean and present our documentation. Much of the user research and data collection had been done by a previous team. There were two DS students on this team. Between the two of us, my role was to clean data, build a model for sorting cities by multiple factors, and to create data visualizations. My DS partner worked primarily on building our API to connect our model to both the iOS and web teams. I spent most of the five weeks of build-time alternating between Jupyter Notebooks and pair programming with my DS partner to integrate my work into our API.
                                 </p>
                                 
-								<div class="image main"><img src="images/ebola_overview.png" alt="" /></div>
-                                <p><span class="image right"><img src="images\distribution10.png" alt="" /></span>
-                                    <header>
-										<h4>Section Heading, image to right</h4>
-									</header>
-                                   Block of text
-                                <p style="padding: 0 0 0 0"><span class="image left"><img src="images\heatmap10.png" alt="" /></span>
-                                    <header>
-										<h4>Recall / Precision Tradeoff</h4>
-									</header>
-                                    Adjusting the predictive threshold way down to 10%
-                                    greatly improves recall at the cost of model precision. 
-                                    
-                                    Even so, for the sake of containment, efforts can be more efficiently focused on 
-                                    85% fewer locations. Effectively concentrating efforts on communities the highest 
-                                    risk.
-                                    
-
-                                </p>
-                                <br></br>
-                                <span class="image left"><img src="images\permutation_importance.jpg" alt="" /></span>
-                                    <header>
-										<h4>Section 2, image to left </h4>
-									</header>
-                                    After running a cleaned the survey data through a selected model 
-                                    (XGBClassier), the relative predictive power of each variable was assessed and 
-                                    ranked according to importance. Of all the information collected in the survey,
-                                    79 factors were found to help our model accuractely predict infection. 
-
-                                    Proximity was, not too surprisingly, among the top contributing factors for 
-                                    predicting Ebola infection. 
-
-                                    Perhaps the most interesting finding is the strong relative importance of other 
-                                    disasters faced by the community during the time of the outbreak. Drought, food shortages,
-                                    flood, conflict, and other calamities all greatly increased a community's likelihood of
-                                    having Ebola infection. 
-
-                                    Other major contributing factors include: the time it takes one to get treatment when needed, 
-                                    if representatives from health
-                                    network organizations were active in the community, whether the community had access 
-                                    to a women's health professional, if fruit was sold at the local market, access to 
-                                    a dedicated facility for child birthing, the proximity to a boarder crossing. 
-
-                                </p>
-                                <br>
-                                <header>
-                                    <h4>Shapley Values for Model's Worst Prediction</h4>
-                                </header>
-                                <p><span class="image"><img src="images\shapley_low.png" alt="" /></span>
-                                    For the village of Peivalor, our model predicted only a 2.2%
-                                    probability of the community having any cases of Ebola. However, there was
-                                    in fact at least one unconfirmed case of infection. 
-                                    
-                                    Inspecting the plot above, the top two factors decreasing likelihood of infection: (1) this is a 
-                                    relatively small community of 18 households; (2) the local market does not sell
-                                    fresh fruit. 
-                        
-                                    On the lefthand side in red, the top factor that lead our model to predict an increased 
-                                    infect risk was that the community had no person or facility designated for giving birth. 
-                                    The next two biggest factors were interrelated. The member of the community surveyed specified that 
-                                    there were other disasters experienced by the community during the outbreak, but the nature of the 
-                                    coinciding diaster was either not disclosed or was not included in the report.                         
-                                </p>
+								<div class="image main"><img src="images\RankerFilter.JPG" alt="" /></div>
 
                                 <header>
-                                    <h4>Shapley Values for Model's Most Certain Prediction</h4>
+                                    <h4>.kjsdglakgsd  asdgjsgd df gsdghhjsdffg</h4>
                                 </header>
-                                <p><span class="image"><img src="images\shapley_high.png" alt="" /></span>
-                                    The village of Oremai was given the highest probability of infection at 97%. All 
-                                    told, this village of 100 households experience 4 cases of Ebola. 
-                        
-                                    Most notably from the diagram, there simply does not appear to be very many 
-                                    factors in this village's favor. The largest factor contributing to our model
-                                    predicting an infection in this community was that it experience two major 
-                                    disasters during the same time as the outbreak. The next largest factor was
-                                    the amount of time the it takes for the average community memeber to get to and
-                                    return from a treatment facility.                          
+								<p>
+									After a day of initial data wrangling, I cleaned and reduced our data to the largest 256 US cities with populations of about one hundred thousand or larger. Our API would give our web developers access to 189 city features ranging from: crime safety ratings, economic growth factors, school ratings, diversity, air quality, etc. 
+								</p>
+								<p>
+									The overall goal was for the first release cycle was for our model to return a list of top recommendations based upon which factors a user selected as important to them. The hope was to eventually add sliders to each selected feature, to be able to weigh relative importance of each factor. Even with this relatively tiny data set and without adding weighted relative importance, the number of possible ranked lists based exceeds 3*10³⁴⁹; my team needed a live model. 
+								</p>
+								<p>
+									First I created a simple function using pandas manipulations.
+								</p>
                                 </p>
+                                <!-- Preformatted Code -->
+								<pre><code># returns df filtered by quantile of factors
+
+def rankify(df, factors, top=10, quant=.75):
+	df_copy = df.copy()
+	for i in factors:
+	df_copy = df_copy[df[i] > df_copy[i].quantile(quant)]
+	df_copy['score'] = df_copy[factors].mean(axis=1)
+	df_copy = df_copy.sort_values('score', ascending=False)
+	return df_copy['name'].head(top).tolist()</code></pre>
+                                <p>
+									For a given input dataframe and  list of factors, the above function takes only the cities that appear in the intersection of the top 25% for each of the factors listed. In other words, a city with a low score in any of the categories listed is axed from the list. From there, a mean is taken across each row to provide a relative score for comparing to other cities, and cities are sorted by the resulting values.                         
+								</p>
+								<p>
+									Although the results from this initial function had some pretty glaring issues, by handing over this minimally viable product to my team, they were able to start working on integrating it into our app, while I improved my model and further cleaned my data.
+								</p>
+								<p>
+									Issues - 1. Different factors were on vastly difference scales. For example, population might vary on the scale of millions, while economic growth usually  varies on partial  percentages. Whichever factor had the biggest numbers had the biggest influence on the overall rank. To begin to fix this, I used a min-max scaler, shrinking the range of values for all factors to be from zero to one. 2. While I pushed these slight improvements, another issue occurred to me - distribution.
+								</p>
+								<!-- Preformatted Code -->
+								<pre><code>import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+# from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
+from sklearn.impute import SimpleImputer
+
+# Instantiate
+# scaler = StandardScaler()
+mms = MinMaxScaler()
+rscaler = RobustScaler()
+
+#Isolate numeric columns
+numeric = robust_df.select_dtypes('number')
+x = numeric.values
+
+# Impute NaNs with means
+imp_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
+imp_mean.fit(x)
+SimpleImputer(add_indicator=False, copy=True, fill_value=None,
+missing_values=np.nan, strategy='mean', verbose=0)
+x = imp_mean.transform(x)
+
+# Scale / Normalize / Standardize
+# x_scaled = scaler.fit_transform(x)
+x_scaled = rscaler.fit_transform(x)
+x_scaled = mms.fit_transform(x)
+df_temp = pd.DataFrame(x_scaled, columns=numeric.columns, index = robust_df.index)
+robust_df[numeric.columns] = df_temp</code></pre>
+								<p>
+									Even while the scale was made the same between factors, the skew of distribution was widely different from one factor to another. If a factor had a strong right-skew (left leaning) distribution, then the resulting upper quartile was had a bigger range than if it were left-skewed. This gave more influence to factors with right-leaning distributions. After playing with a number of scalars and normalizers, the best results were given by sklearn's Robust Scaler. However, even it was not completely fair between factors due to irregularities in distributions.
+								</p>
+								
+								<span class="image left"><img src="images\flat_dist.png" alt="" /></span>
+                                <header>
+                                    <h4>A simple solution to produce a flat distribution</h4>
+                                </header>
+                                <p>
+									Finally, it occurred to me that what I was looking for was a flat distribution which could be accomplished much easier by simply ranking each factor using pandas own built-in .rank() function.                     
+								</p>
+								
+								<div class="image main"><img src="images\stacked_bar.png" alt="" /></div>
+								<div class="image main"><img src="images\ViolinPlot.png" alt="" /></div>
+								<div class="image main"><img src="images\swarm_violin.png" alt="" /></div>
+								<div class="image main"><img src="images\slug_plot.png" alt="" /></div>
+								<div class="image main"><img src="images\radial_bargraph.png" alt="" /></div>
+								<!-- Preformatted Code -->
+								<pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+
+city = 'Portland'
+x = ["score_commute", "score_cost_of_living", "score_economy", "score_education", 
+		"score_environmental_quality", "score_healthcare", "score_housing", 
+		"score_internet_access", "score_leisure_&_culture", "score_outdoors", 
+		"score_safety", "score_startups", "score_taxation", "ranked_population"]
+
+def radar_plt(df=ranked_df, city=city, factors=x):
+
+	test = df.loc[df['short_name'] == city][factors].T.reset_index()
+	test.columns = ['theta', 'r']
+	test['r'] = test['r']*100
+	test['theta'] = test['theta'].replace('_', ' ', regex=True
+		).replace('score ', '', regex=True
+			).replace('ranked ', '', 
+				regex=True
+			).str.title()
+	test
+
+	plt.style.use("bmh")
+
+	fig = plt.figure(figsize=(10,10))
+	ax = fig.add_subplot(111,polar=True)
+	ax.spines['polar'].set_visible(False)
+
+	rank = test['r']
+	N = test['r'].shape[0]
+	colors = plt.cm.GnBu(test['r'] / 150)
+
+	width = np.pi / N*1.8
+	theta = np.arange(0, 2*np.pi, 2*np.pi/N) 
+	bars = ax.bar(theta, rank, width=width, color=colors, alpha=0.9)
+
+	ax.yaxis.grid(True)
+	ax.set_xticks(theta)
+	ax.set_xticklabels(test['theta'], fontweight='bold', fontsize=12)# , fontname='FontAwesome')
+
+	# puts % on y tick labels
+	y_label_text = ["{}%".format(int(loc)) for loc in plt.yticks()[0]]
+	ax.set_yticklabels(y_label_text)
+
+	# rrr = redu_df.loc[redu_df['short_name'] == city][x].tolist()[0]
+	# plt.axvline(x=rrr, color='black', lw=2)
+
+
+	# print(["{}%".format(int(loc)) for loc in plt.yticks()[0]])
+	# return plt.show()
+	return plt.savefig('radarplot.png', dpi=400)
+
+
+# Example:
+radar_plt()</code></pre>
+
 
 							</section>
 
