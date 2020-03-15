@@ -1,7 +1,7 @@
 <?php
 if($_POST["submit"]) {
     $recipient="mikecurry.ds@gmail.com";
-    $subject="Form to email message";
+    $subject="Message From Portfolio Form";
     $sender=$_POST["sender"];
     $email=$_POST["email"];
     $message=$_POST["message"];
@@ -10,10 +10,13 @@ if($_POST["submit"]) {
 
     mail($recipient, $subject, $mailBody, "From: $sender <$email>");
 
-    $thankYou="<p>Thank you! Your message has been sent.</p>";
+    <!-- $thankYou="<p>Thank you! Your message has been sent.</p>"; -->
 
 }
-?><!DOCTYPE HTML>
+
+?>
+
+<!DOCTYPE HTML>
 <!--
 	Massively by HTML5 UP
 	html5up.net | @ajlkn
