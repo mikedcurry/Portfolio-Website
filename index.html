@@ -1,3 +1,20 @@
+<?php
+if($_POST["submit"]) {
+    $recipient="mikecurry.ds@gmail.com";
+    $subject="Form to email message";
+    $sender=$_POST["sender"];
+    $senderEmail=$_POST["email"];
+    $message=$_POST["message"];
+
+	$mailBody="Name: $sender\nEmail: $senderEmail\n\n$message";
+
+    mail($recipient, $subject, $mailBody, "From: $sender <$senderEmail>");
+
+    $thankYou="<p>Thank you! Your message has been sent.</p>";
+
+}
+?>
+
 <!DOCTYPE HTML>
 <!--
 	Massively by HTML5 UP
@@ -22,7 +39,10 @@
 						<h1>Michael Curry</h1>
 						<h2>Data Scientist</h2>
 						<!-- DESCRIBE YOURSELF HERE::::::::: -->
-						<p>Here's a portfolio of some of the projects I've been working on.</p>
+						<p>Here's a portfolio of some of the projects I've been working on lately.
+							Follow the links to read more about my thought process, to access github 
+							repos, view code notebooks, and more.
+						</p>
 						<ul class="actions">
 							<li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">Continue</a></li>
 						</ul>
@@ -37,9 +57,9 @@
 					<nav id="nav">
 						<ul class="links">
 							<li class="active"><a href="index.html">Projects</a></li>
-							<li><a href="generic.html">Bio</a></li>
+							<li><a href="generic.html">About Me</a></li>
 							<!-- <li><a href="elements.html">Elements Reference</a></li> -->
-							<li><a target="_blank" href="Resume Curry 2018.pdf">Resume</a></li>
+							<li><a target="_blank" href="curry_resume_3_2020.pdf">Resume PDF</a></li>
 						</ul>
 						<ul class="icons">
 							<li><a href="https://www.linkedin.com/in/michael-curry-7ab92118a/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
@@ -56,13 +76,13 @@
 							<article class="post featured">
 								<header class="major">
 									<span class="date">Current Project</span>
-									<h2><a href="#">A Convolutional Neural Network to Identify City Location
+									<h2><a href="city.html">A Convolutional Neural Network to Identify City Location
 									</a></h2>
 									<p>A CNN for image recognition is trained on results from Google Images API for city names. The array of probabilities provided by a softmax output layer are examined to determine subtle similarities between cities. The plans for a "City Vibes" swiping app are outlined in detail.</p>
 								</header>
-								<a href="#" class="image main"><img src="images\city_nn.png" alt="" /></a>
+								<a href="city.html" class="image main"><img src="images\city_nn.png" alt="" /></a>
 								<ul class="actions special">
-									<li><a href="#" class="button large">Project Narrative</a>
+									<li><a href="city.html" class="button large">Project Narrative</a>
 										<a href="https://colab.research.google.com/drive/1oP791H7p6STddnjrf7f7VVLj0wmIc13z" class="button large">Jupyter Notebook</a>
 								</ul>
 							</article>
@@ -72,14 +92,23 @@
 								<article>
 									<header>
 										<!-- <span class="date">April 24, 2017</span> -->
-										<span class="date">April 22, 2017</span>
-										<h2><a href="#">Using Machine Learning<br />
+
+										<span class="date">April 00-00, 2017</span>
+										<span class="date">4 Day Build</span>
+										<h2><a href="tess.html">Using Machine Learning<br />
 										to identify potential planets in TESS data</a></h2>
 									</header>
-									<a href="#" class="image fit"><img src="images\LightCurve.png" alt="" /></a>
-									<p>Donec eget ex magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque venenatis dolor imperdiet dolor mattis sagittis magna etiam.</p>
+									<a href="tess.html" class="image fit"><img src="images\LightCurve.png" alt="" /></a>
+									<p>
+										Supervised Machine Learning models are trained on a combined data-set from
+										CalTech and STScI to identify probable planet baring stars in NASA's TESS 
+										satellite light-curve data.
+									</p>
 									<ul class="actions special">
-										<li><a href="https://github.com/mikedcurry" class="button">View on Github</a></li>
+										<li>
+											<a href="tess.html" class="button">Full Story</a>
+											<a href="https://github.com/mikedcurry" class="button">View on Github</a>
+										</li>
 									</ul>
 								</article>
 								<article>
@@ -92,9 +121,8 @@
 									<p>A search engine for finding simpsons quotes using a k-Nearest Neighbors model deployed as a flask API. And An attempt to teach a Nerual Net to generate English sentences from the opus of Homer Simpson.</p>
 									<ul class="actions special">
 										<li>
-											<a href="https://github.com/mikedcurry" class="button">View on Github</a>
 											<a href="nlp.html" class="button">Full Story</a>
-											<a href="https://simpsons-says.jwatt10.now.sh/quotes" class="button">Deployed App</a>
+											<a href="https://github.com/mikedcurry" class="button">View on Github</a>
 										</li>
 									</ul>
 								</article>
@@ -113,11 +141,14 @@
 								<article>
 									<header>
 										<span class="date">April 14, 2017</span>
-										<h2><a href="ranker.html">Ranking Cities based on<br />
+										<h2><a href="ranker.html">An App to rank cities based on<br />
 										user selected factors</a></h2>
 									</header>
 									<a href="ranker.html" class="image fit"><img src="images\BestPlaces.png" alt="" /></a>
-									<p>Using asdo;iha sodhvlcn </p>
+									<p>
+										A simple data sorting model and interactive data visuals are integrated
+										into a larger project on a team with four distinct disciplines. 
+									</p>
 									<ul class="actions special">
 										<li><a href="ranker.html" class="button">Full Story</a></li>
 									</ul>
@@ -152,12 +183,12 @@
 
 				<!-- Footer -->
 					<footer id="footer">
-						<!-- <section>
-							<form method="post" action="#">
+						<section>
+							<form method="post" action="contact.php">
 								<div class="fields">
 									<div class="field">
 										<label for="name">Name</label>
-										<input type="text" name="name" id="name" />
+										<input type="text" name="sender" id="sender" />
 									</div>
 									<div class="field">
 										<label for="email">Email</label>
@@ -169,23 +200,18 @@
 									</div>
 								</div>
 								<ul class="actions">
-									<li><input type="submit" value="Send Message" /></li>
+									<li><input type="submit" name="submit" /></li>
 								</ul>
 							</form>
-						</section> -->
+						</section>
 						<section class="split contact">
-							<!-- <section class="alt">
-								<h3>Address</h3>
-								<p>1234 Somewhere Road #87257<br />
-								Nashville, TN 00000-0000</p>
-							</section> -->
 							<section>
 								<h3>Phone</h3>
-								<p><a href="#">(000) 000-0000</a></p>
+								<p><a href="#">(575) 770-9143</a></p>
 							</section>
 							<section>
 								<h3>Email</h3>
-								<p><a href="#">info@untitled.tld</a></p>
+								<p><a href="#">mikecurry.ds@gmail.com</a></p>
 							</section>
 							<!-- <section>
 								<h3>Social</h3>
@@ -201,7 +227,7 @@
 
 				<!-- Copyright -->
 					<div id="copyright">
-						<ul><li>Michael Curry</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+						<ul><li>Michael Curry</li><li>Data Scientist</li></ul>
 					</div>
 
 			</div>

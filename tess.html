@@ -1,0 +1,253 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Planet Finding App</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Main</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li class="active"><a href="index.html">Projects</a></li>
+							<li><a href="generic.html">Bio</a></li>
+							<!-- <li><a href="elements.html">Elements Reference</a></li> -->
+							<li><a target="_blank" href="curry_resume_3_2020.pdf">Resume PDF</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="https://www.linkedin.com/in/michael-curry-7ab92118a/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+							<li><a href="https://medium.com/@mdcurry1138" class="icon brands alt fa-medium"><span class="label">Medium</span></a></li>
+							<li><a href="https://twitter.com/MikeDCurry" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+							<li><a href="https://github.com/mikedcurry" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+                                    <h1>TESS Planet Finding App</h1>
+								</header>
+								<h4>Core of the project: a model to catagorize light-curves</h4>
+                                <p>NASA's TESS satellite is a started taking light readings of 200,000 of the brightest, 
+									closest stars in 2018. They expect to find about 300 earth-sized exoplanets within the 
+									next year. Data from this on-going project is being made available to the public. For 
+									my very first co-op project, another Data Science student and I paired up to see if 
+									we could find anything interesting.
+                                </p>
+                                
+								<div class="image main"><img src="images\tess_generic.jpg" alt="" /></div>
+
+
+								<p>
+									To be clear, neither of us are astrophysicists. Nonetheless, after brainstorming 
+									together, we came up with a way for a way that machine learning might contribute to 
+									NASA's project without any reference to physics. To train a classification model, 
+									all we needed was a set of data to train on with and without exoplanets -think  
+									hotdog / not a hotdog from the show Silicone Valley. We had access to the the raw 
+									data without any classification. If we could get a list of stars in the data that had 
+									already been established as likely to have planets, then we were in business.
+								</p>
+								<span class="image right"><img src="images\transiting-exoplanet-with-brightness-graph-anim.gif" alt="" /></span>
+
+								<p>
+									As it turned out, CalTech had already begun composing a list of most likely stars in 
+									the TESS data to have planets. They wanted to get this information out there to direct 
+									the attention of the physics community towards the stars that were most likely to yield 
+									interesting results, and to get people to start pointing equipment in the right 
+									directions. As it so happened, this is exactly the information we also needed to build 
+									a classification model.								
+								</p>
+								<p>
+									We combined the CalTech data with data from STScI in Baltimore, MD, together the data 
+									formed X and y vectors of our models. We also found a number of helpful Jupyter 
+									Notebooks on the community resources section of NASA's website to create nice 
+									light-curve visuals like the one below.
+								</p>
+								<div class="image main"><img src="images\LightCurve.png" alt="" /></div>
+								<p>
+									Essentially, our model took in the whole swath of these scattered data-points for each 
+									planet and was charged to produce a single probability for whether each star had at 
+									least one planet. 
+									
+									The power of this approach, though it could never 
+									stand alone, is that it allows us to look for patterns that were not necessarily 
+									looking for explicitly. While initially physics might find probable planets in the 
+									data using rigid and well defined rules, our secondary / piggy-back approach allowed 
+									us to look for general patterns. Most notably, we are not really able to say exactly 
+									what the patterns are that our model is picking up on, only that it must be catching 
+									on to something if it is predicting accurately.
+								</p>
+								<h4>Building our Model into an App</h4>
+								<p>
+									In a addition to building the model itself, my DS partner and I set out to create a 
+									simple interactive app with our findings. As a minimal product, we hoped for a user to 
+									be able to select a star from the data and see a light-curve graph with our model's 
+									predictions.
+								</p>
+								<p>
+									To tackle this, I built a Python Flask App. In retrospect, we really didn't need to 
+									reproduce all of our work in the app, but we did. I created a number of python classes 
+									in Object Oriented Programming style to most easily transfer our local work on a sqlite 
+									database to a populating our production PostgreSQL DB and used SQLAlchemy. The idea 
+									was to build something that we could come back to and build out more features.
+								</p>
+
+                                <!-- Preformatted Code -->
+								<pre><code></code>from flask_sqlalchemy import SQLAlchemy
+
+#Instantiate
+DB = SQLAlchemy()
+
+# create visualization info class
+class Visual_Table(DB.Model):
+	id = DB.Column(DB.Integer, primary_key=True)
+	TIC_ID = DB.Column(DB.BigInteger, nullable=False)
+	dataURL = DB.Column(DB.String(100))
+	def __repr__(self):
+	return '<Visual_Table {}>'.format(self.TIC_ID)
+
+class TOI_Table(DB.Model):
+	id = DB.Column(DB.Integer, primary_key=True)
+	TIC_ID = DB.Column(DB.BigInteger, nullable=False)
+	TOI = DB.Column(DB.Float)
+	Epoch = DB.Column(DB.Float)
+	Period = DB.Column(DB.Float)
+	Duration = DB.Column(DB.Float)
+	Depth = DB.Column(DB.Float)
+	Planet_Radius = DB.Column(DB.Float)
+	Planet_Insolation = DB.Column(DB.Float)
+	Planet_Equil_Temp = DB.Column(DB.Float)
+	Planet_SNR = DB.Column(DB.Float)
+	Stellar_Distance = DB.Column(DB.Float)
+	Stellar_log_g = DB.Column(DB.Float)
+	Stellar_Radius = DB.Column(DB.Float)
+	TFOPWG_Disposition = DB.Column(DB.String)
+	def __repr__(self):
+	return '<TOI_Table {}>'.format(self.TIC_ID)
+
+class TIC_Cat_Table(DB.Model):
+	id = DB.Column(DB.Integer, primary_key=True)
+	TIC_ID = DB.Column(DB.BigInteger, nullable=False)
+	ra = DB.Column(DB.Float)
+	dec = DB.Column(DB.Float)
+	pmRA = DB.Column(DB.Float)
+	pmDEC = DB.Column(DB.Float)
+	plx = DB.Column(DB.Float)
+	gallong = DB.Column(DB.Float)
+	gallat = DB.Column(DB.Float)
+	eclong = DB.Column(DB.Float)
+	eclat = DB.Column(DB.Float)
+	Tmag = DB.Column(DB.Float)
+	Teff = DB.Column(DB.Float)
+	logg = DB.Column(DB.Float)
+	MH = DB.Column(DB.Float)
+	rad = DB.Column(DB.Float)
+	mass = DB.Column(DB.Float)
+	rho = DB.Column(DB.Float)
+	lum = DB.Column(DB.Float)
+	d = DB.Column(DB.Float)
+	ebv = DB.Column(DB.Float)
+	numcont = DB.Column(DB.Float)
+	contratio = DB.Column(DB.Float)
+	priority = DB.Column(DB.Float)
+	def __repr__(self):
+	return '<TIC_Cat_Table {}>'.format(self.TIC_ID)</code></pre>
+                                <p>
+									To populate this database, I created three functions to live in a .py file to fetch 
+									data for our three tables above. The nearly 200 lines of code of these functions 
+									can be found: 
+									https://github.com/mikedcurry/TESS_Flask_App/blob/master/App_TESS/Data_in.py								</p>
+								
+
+
+
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<!-- <section>
+							<form method="post" action="#">
+								<div class="fields">
+									<div class="field">
+										<label for="name">Name</label>
+										<input type="text" name="name" id="name" />
+									</div>
+									<div class="field">
+										<label for="email">Email</label>
+										<input type="text" name="email" id="email" />
+									</div>
+									<div class="field">
+										<label for="message">Message</label>
+										<textarea name="message" id="message" rows="3"></textarea>
+									</div>
+								</div>
+								<ul class="actions">
+									<li><input type="submit" value="Send Message" /></li>
+								</ul>
+							</form>
+						</section> -->
+						<section class="split contact">
+							<!-- <section class="alt">
+								<h3>Address</h3>
+								<p>1234 Somewhere Road #87257<br />
+								Nashville, TN 00000-0000</p>
+							</section> -->
+							<section>
+								<h3>Phone</h3>
+								<p><a href="#">(000) 000-0000</a></p>
+							</section>
+							<section>
+								<h3>Email</h3>
+								<p><a href="#">info@untitled.tld</a></p>
+							</section>
+							<section>
+								<h3>Social</h3>
+								<ul class="icons alt">
+									<li><a href="https://www.linkedin.com/in/michael-curry-7ab92118a/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="https://medium.com/@mdcurry1138" class="icon brands alt fa-medium"><span class="label">Medium</span></a></li>
+									<li><a href="https://twitter.com/MikeDCurry" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+									<li><a href="https://github.com/mikedcurry" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>Michael Curry</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Ebola Community Risk Factors</title>
+		<title>City Image Recognition</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -25,16 +25,16 @@
 				<!-- Nav -->
 					<nav id="nav">
 						<ul class="links">
-							<li><a href="index.html">Projects</a></li>
-							<li class="active"><a href="generic.html">Bio</a></li>
-							<li><a href="elements.html">Elements Reference</a></li>
-							<li><a target="_blank" href="Resume Curry 2018.pdf">Resume</a></li>
+							<li class="active"><a href="index.html">Projects</a></li>
+							<li><a href="generic.html">About Me</a></li>
+							<!-- <li><a href="elements.html">Elements Reference</a></li> -->
+							<li><a target="_blank" href="curry_resume_3_2020.pdf">Resume PDF</a></li>
 						</ul>
 						<ul class="icons">
-							<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-							<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+							<li><a href="https://www.linkedin.com/in/michael-curry-7ab92118a/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+							<li><a href="https://medium.com/@mdcurry1138" class="icon brands alt fa-medium"><span class="label">Medium</span></a></li>
+							<li><a href="https://twitter.com/MikeDCurry" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+							<li><a href="https://github.com/mikedcurry" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
 						</ul>
 					</nav>
 
@@ -44,97 +44,84 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-                                    <h1>Project Name<br /></h1>
-                                    <p> Generic Overview of the project here</p>
-                                </header>
-                                <p>Block of Text
-                                </p>
-                                <p>Block of text
-                                </p>
-                                
-								<div class="image main"><img src="images/ebola_overview.png" alt="" /></div>
-                                <p><span class="image right"><img src="images\distribution10.png" alt="" /></span>
-                                    <header>
-										<h4>Section Heading, image to right</h4>
-									</header>
-                                   Block of text
-                                <p style="padding: 0 0 0 0"><span class="image left"><img src="images\heatmap10.png" alt="" /></span>
-                                    <header>
-										<h4>Recall / Precision Tradeoff</h4>
-									</header>
-                                    Adjusting the predictive threshold way down to 10%
-                                    greatly improves recall at the cost of model precision. 
-                                    
-                                    Even so, for the sake of containment, efforts can be more efficiently focused on 
-                                    85% fewer locations. Effectively concentrating efforts on communities the highest 
-                                    risk.
-                                    
 
-                                </p>
-                                <br></br>
-                                <span class="image left"><img src="images\permutation_importance.jpg" alt="" /></span>
-                                    <header>
-										<h4>Section 2, image to left </h4>
-									</header>
-                                    After running a cleaned the survey data through a selected model 
-                                    (XGBClassier), the relative predictive power of each variable was assessed and 
-                                    ranked according to importance. Of all the information collected in the survey,
-                                    79 factors were found to help our model accuractely predict infection. 
+									<h1>Image Recognition Applied to City Photos<br /></h1>
+								</header>
+								<p> A CNN for image recognition is trained on results from Google Images API for 
+									city names. The array of probabilities provided by a softmax output layer are 
+									examined to determine subtle similarities between cities. The plans for a "City 
+									Vibes" swiping app are here discussed.
+								</p>
+								<p>
+									I started small with just nine photos between three cities. I put the photos 
+									in folders in the same root directory as my project notebooks. Once I had 
+									everything working on this micro-set, I went to work on pulling photos from the 
+									google images API. After some searching, I came upon a fairly simple script that 
+									allowed me to download multiple images from google for each city all at once. 
+									https://github.com/hardikvasa/google-images-download
+								</p>
+                                <p><span class="image right"><img src="images\city_files.jpeg" alt="" /></span>
 
-                                    Proximity was, not too surprisingly, among the top contributing factors for 
-                                    predicting Ebola infection. 
+								<p>
+									With my newly adopted script, I could fill my city folders with as many random 
+									city photos as I specified. Again, I took the road of simplicity and only did 
+									four photos for each of the 256 cities. Good thing I went small, because it took 
+									me several hours to download these with my poor connection.
+								</p>
+                                <p>
+									I decided to force all of my photos to be the same size. Maybe there is another 
+									way of doing this, but figured that the input vectors were all going need to be 
+									the same when they got plugged into the Neural Net. For this I used a prepossessing 
+									tool from Keras. Again I started small with a resolution of 224 by 224 by 3 
+									(for colors). I'm not sure if there is any reason for this size exactly, but I found 
+									that a lot of instances of Keras use this exact size so I superstitiously followed 
+									the apparent convention.
+								</p>
+								<!-- Preformatted Code -->
+								<pre><code>from tensorflow.keras.preprocessing import image
+def process_img_path(img_path): 
+	return image.load_img(img_path, target_size=(224, 224))</code></pre>
 
-                                    Perhaps the most interesting finding is the strong relative importance of other 
-                                    disasters faced by the community during the time of the outbreak. Drought, food shortages,
-                                    flood, conflict, and other calamities all greatly increased a community's likelihood of
-                                    having Ebola infection. 
+								<p>
+									Loading one of my photos to take a look:
+								</p>
+								<pre><code>image.load_img('./data/santa_fe/sfe1.jpg', target_size=(224,224))</code></pre>
+								<p><span class="image main"><img src="images\city_sample_pic.png" alt="" /></span>
 
-                                    Other major contributing factors include: the time it takes one to get treatment when needed, 
-                                    if representatives from health
-                                    network organizations were active in the community, whether the community had access 
-                                    to a women's health professional, if fruit was sold at the local market, access to 
-                                    a dedicated facility for child birthing, the proximity to a boarder crossing. 
+								<p>
+									Then I wrote a short function to apply this size requirement to each photo as it adds 
+									them as an array of values to a X vector.
+								</p>
+								<pre><code>data = []
 
-                                </p>
-                                <br>
-                                <header>
-                                    <h4>Shapley Values for Model's Worst Prediction</h4>
-                                </header>
-                                <p><span class="image"><img src="images\shapley_low.png" alt="" /></span>
-                                    For the village of Peivalor, our model predicted only a 2.2%
-                                    probability of the community having any cases of Ebola. However, there was
-                                    in fact at least one unconfirmed case of infection. 
-                                    
-                                    Inspecting the plot above, the top two factors decreasing likelihood of infection: (1) this is a 
-                                    relatively small community of 18 households; (2) the local market does not sell
-                                    fresh fruit. 
-                        
-                                    On the lefthand side in red, the top factor that lead our model to predict an increased 
-                                    infect risk was that the community had no person or facility designated for giving birth. 
-                                    The next two biggest factors were interrelated. The member of the community surveyed specified that 
-                                    there were other disasters experienced by the community during the outbreak, but the nature of the 
-                                    coinciding diaster was either not disclosed or was not included in the report.                         
-                                </p>
-
-                                <header>
-                                    <h4>Shapley Values for Model's Most Certain Prediction</h4>
-                                </header>
-                                <p><span class="image"><img src="images\shapley_high.png" alt="" /></span>
-                                    The village of Oremai was given the highest probability of infection at 97%. All 
-                                    told, this village of 100 households experience 4 cases of Ebola. 
-                        
-                                    Most notably from the diagram, there simply does not appear to be very many 
-                                    factors in this village's favor. The largest factor contributing to our model
-                                    predicting an infection in this community was that it experience two major 
-                                    disasters during the same time as the outbreak. The next largest factor was
-                                    the amount of time the it takes for the average community memeber to get to and
-                                    return from a treatment facility.                          
-                                </p>
-
-							</section>
-
-					</div>
-
+for i in ['columbus', 'portland', 'santa_fe']:
+	for file in os.listdir('./data/'+i):
+	#         print(file) #to check if right files...
+		if file[-3:] == 'jpg':
+			path = os.path.join(f'./data/{i}/' + file)
+			img = process_img_path(path)
+			x = image.img_to_array(img)
+			
+			data.append(x)
+	#             print(x)</code></pre>
+								<p>
+									For fun, we can take a peak at our vectorized photos:	
+								</p>
+								<p><span class="image left"><img src="images\city_vect_pic.png" alt="" /></span>
+								
+								<br>
+								</br>
+								<br>
+								</br>
+								<br>
+								</br>
+								<br>
+								</br>
+								<p>
+									Taking a quick look at the shape of this array, shows us that we have 9 photos, each 
+									being 224 by 224 pixles in 3 colors dimensions. Golden. Later the first number became 
+									256 * n, the number of photos hosted per city.
+								</p>
 				<!-- Footer -->
 					<footer id="footer">
 						<!-- <section>
