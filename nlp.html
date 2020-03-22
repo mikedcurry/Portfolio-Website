@@ -144,7 +144,8 @@ finder = nn.kneighbors(new.todense())</code></pre>
 									We can filter our original dataframe using these numbers to find the most simular quotes to our input text. For example:
 								</p>
 								<pre><code>df['spoken_words'][891]</code></pre>
-								<h4>Here are the results of all our hard work</h4>
+								<h4>Here are the results of all that hard work:</h4>
+								<div class="box">
 								<p>
 									"Now, that's odd. I've just robbed a man of his livelihood, and yet I feel strangely empty. Tell you what, Smithers. Have him beaten to a pulp."
 								</p>
@@ -160,6 +161,7 @@ finder = nn.kneighbors(new.todense())</code></pre>
 								<p>
 									'Nah.'
 								</p>
+								</div>
 								<p>
 									Well, that was interesting, but I'm not entirely confident on the qaulity of these results. 
 								</p>
@@ -226,8 +228,8 @@ def retrieval():
 	except Exception as e:
 		# Unfortunately I'm not going to wrap this in indv. strings
 		r = Response(response=error_msg+str(e),
-						status=404,
-						mimetype="application/xml")
+					 status=404,
+					 mimetype="application/xml")
 		r.headers["Content-Type"] = "text/json; charset=utf-8"
 		return r</code></pre>                                   
 
