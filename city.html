@@ -95,6 +95,8 @@ def process_img_path(img_path):
 								</p>
 								<br>
 								<br>
+								<br>
+								<br>
 								<pre><code>data = []
 
 for i in ['columbus', 'portland', 'santa_fe']:
@@ -125,35 +127,78 @@ for i in ['columbus', 'portland', 'santa_fe']:
 									being 224 by 224 pixles in 3 colors dimensions. Golden. Later the first number became 
 									256 * n, the number of photos hosted per city.
 								</p>
+								<p><span class="image right"><img src="images\shape_array.png" alt="" /></span>
+								<p>
+									On my first attempt at creating a functional CNN, I created a simple target vector by
+									 manually creating an array. Each number represented a city.
+								</p>
+								<pre><code>y = array([0, 0, 0, 1, 1, 1, 2, 2, 2])</code></pre>
+								<p>For a bigger set of photos, I had to get a little more python savvy:</p>
+								<pre><code># Create target vector
+
+y = []
+for i in range(0, 256):
+j = [i]*4   # in this case 4 photos / city
+for p in j:
+	y.append(p)
+y = np.asarray(y)</code></pre>
+								<P>Writing something this simple that works is the quite satifying.</P>
+								<p>y.shape yeilds:</p>
+								<pre><code>array([ 0, 0, 0, …, 255, 255, 255])</code></pre>
+								<p>Perfect, except that it needed to be made binary. For this purpose, 
+									I used a quick Keras tool.
+								</p>
+								<pre><code>from keras.utils import to_categorical
+y_binary = to_categorical(y)</code></pre>
+								<p>Now our binary array represents the catagory, namely the city,
+									as either a 0 or a 1 for each photo. For example, the first three lists within the 
+									array start with 1 and the rest are zeros. Each of the first three lists seen 
+									are photos of the first city and not any other. 
+								</p>
+								<pre><code>array([[1., 0., 0., ..., 0., 0., 0.],
+	[1., 0., 0., ..., 0., 0., 0.],        
+	[1., 0., 0., ..., 0., 0., 0.],        
+		...,        
+	[0., 0., 0., ..., 0., 0., 1.],        
+	[0., 0., 0., ..., 0., 0., 1.],        
+	[0., 0., 0., ..., 0., 0., 1.]], dtype=float32)</code></pre>
+								<p>Next, I split my data into train and test. If I had a much bigger set, I would probably use a train/validate/test split, but this project primarily a proof of concept. Plus, I can't afford the computational power to run anything much bigger than four photos per city.</p>
+								<pre><code>from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y_binary, test_size=0.25, stratify=y_binary)</code></pre>
+								<p>In my "bigger" set with four photos for each 256 cities, I used three pics to train and one to test. Admittedly, this is not even remotely close to producing something that could be proven accurate, but that's not really the point of this project.</p>
+								<p>I had a method for clearly defining my X and y vectors, now I needed to work out a model.</p>
+								<hr />
+								<p>I wanted to create a neural network that could take in my array of photos, use each city as a target, and output an array of probabilities that told how likely each photo was each city.</p>
+								<p>After a lot of searching and digging, I found a number of very helpful articles 
+									on building NNs with Keras from Jason Browlee  --  my current hero. Check out: 
+									<a href = 'https://machinelearningmastery.com/category/deep-learning'>Deep Learning with Keras, J Brownlee.</a> 
+									Seriously, this guy is fantastic!</p>
+								<p>I also found some helpful information about how get an probabilities from a NN 
+									using a softmax output layer and a categorical crossentropy loss function from 
+									Haihan Lan -- <a href = https://towardsdatascience.com/the-softmax-function-neural-net-outputs-as-probabilities-and-ensemble-classifiers-9bd94d75932'>here</a>
+									. This was the missing link I needed to use change the output of a neural network to an 
+									array of probabilities as I was hoping for.
+								</p>
+								<p>After learning from these masters in my field, building my CNN model with a softmax output layer looks deceptively simple:</p>
+								<pre><code>from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, GlobalAveragePooling2D
+from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.models import Sequential, Model
+
+#instantiate resnet50 & sew own a head -- input layer shape 
+res = ResNet50(input_shape=(224, 224, 3), weights='imagenet', include_top=False)
+
+# sew my tail on this beast
+x1 = res.output
+x1 = GlobalAveragePooling2D()(x1)
+predictions = Dense(y_train[0].shape[0], activation='softmax')(x1)
+model = Model(res.input, predictions)</code></pre>
+								<p>Above, I've taken the absolutely beastly Resnet50 deep NN and simply sewed on my own input and output layers. I'm not going to pretend that I understand how the good folks at Mathworks dreamed up the layer structure of this deep neural net. However, I think it's worth taking a moment to appreciate what's under the hood on this model - prepare to scroll a ways. My model layers can be inspected using, model.summary:</p>
+
+
+
+
 				<!-- Footer -->
 				<footer id="footer">
-					<!-- <section>
-						<form method="post" action="#">
-							<div class="fields">
-								<div class="field">
-									<label for="name">Name</label>
-									<input type="text" name="name" id="name" />
-								</div>
-								<div class="field">
-									<label for="email">Email</label>
-									<input type="text" name="email" id="email" />
-								</div>
-								<div class="field">
-									<label for="message">Message</label>
-									<textarea name="message" id="message" rows="3"></textarea>
-								</div>
-							</div>
-							<ul class="actions">
-								<li><input type="submit" value="Send Message" /></li>
-							</ul>
-						</form>
-					</section>
-					<section class="split contact"> -->
-						<!-- <section class="alt">
-							<h3>Address</h3>
-							<p>1234 Somewhere Road #87257<br />
-							Nashville, TN 00000-0000</p>
-						</section> -->
 						<section class="split contact">
 							<section>
 								<h3>Phone</h3>
