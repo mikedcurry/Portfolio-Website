@@ -46,12 +46,91 @@
 								<header class="major">
 
 									<h1>Image Recognition Applied to City Photos<br /></h1>
+									<p>A CNN for image recognition is trained on results from Google Images API for 
+										city names. The array of probabilities provided by a softmax output layer are 
+										examined to determine subtle similarities between cities. The plans for a "City 
+										Vibes" swiping app are here discussed.</p>
 								</header>
-								<p> A CNN for image recognition is trained on results from Google Images API for 
-									city names. The array of probabilities provided by a softmax output layer are 
-									examined to determine subtle similarities between cities. The plans for a "City 
-									Vibes" swiping app are here discussed.
+							<hr />
+								<p> This project originally started as a feature for iOS implementation of another app 
+									- Best Places to Live (link). In the third release cycle of our project, I teamed up 
+									with an iOS student to build out the feature described here. Fortunately for my partner, 
+									he was offered paid position midway through development. As a consequence, the front end
+									 of this feature has not yet been completed. Despite this setback, I have included my 
+									 work on this feature as a stand-alone story in my project. I think the idea is fun, 
+									 original, and would be fairly straight forward to develop. For the Machine Learning 
+									 aspects of this project I have a proof of concept, and I have a skeleton outline of 
+									 database architecture that would make this app function at a production level.
 								</p>
+								<p>
+									The overall idea of this project is to have a user swipe right or left on random 
+									images of cities. If the user likes what they see in the photo, the app should find 
+									cities that have photos with similar content. Likewise, the app should shuffle cities
+									 with disliked features towards the bottom of the list.
+								</p>
+								<p>
+									The beauty of using a Neural Network to target cities by random photos is that the 
+									patterns it picks up on are subtle. Of the general subject matter in a photo, the 
+									NN picks up on lighting, texture, edges, color-scheme, and honestly who knows what 
+									else. The patterns are not predetermined, but opaquely found by whatever the NN can 
+									pick up on in the photos to optimize it's target accuracy. Adding to this subtly is 
+									how top results are selected from Google Images. The subject of photos in google images 
+									for a given keyword are continuously sorted by popular user association. For example, 
+									'New York' generally has grandiose skyline photos towards the top of the stack. 
+									'Denver' tends to feature mountainous backgrounds with rocky crags. 'Los Angeles' 
+									has more street view photos.
+								</p>
+								<p>
+									The duel-layer of subtly, both from the NN and google images automatic sorting, 
+									give rise to the double potential to access user sub-conscious preference in 'vibes'
+									 from a given city photo.
+								</p>
+								<hr />
+								<p>
+									The slightly more technical vision of this project is to: train a neural network for 
+									image recognition on random photos of cities; have the model output an array of 
+									probabilities representing each photo's match to each city; have a user swipe left 
+									or right for each random city photo displayed; keep a running score of probable 
+									matches for each city per user; output a list of top matched cities for a user 
+									based upon images they have swiped.
+								</p>
+								<h3>Steps completed thus far:</h3>
+								<ol>
+									<li>Use a script to pull random google images into a file system, using city 
+										names as keywords.</li>
+									<li>Design a CNN optimized for photo recognition, able to access file system,
+										 uses 'city name' as it's target, and outputs an array of probabilities.</li>
+									<li>Design a database architecture that store hosted photo URLs with output 
+										probability arrays, user running totals data, and a simple model for keeping 
+										users' city match scores.</li>
+								</ol>
+								<hr />
+								<p>
+									Starting with the end in mind, I first roughly sketched out a plan for a workable 
+									data architecture.
+								</p>
+								<span class="image main"><img src="images\RoughDataArch.png" alt="" /></span>
+								<p>
+									The core of the data for this app can be stored in two relatively simple tables.
+									 The first table should contain information about each photo: a url to the hosted 
+									 image; a queue position key value; an array of probabilities for the percentage 
+									 match to each city. The second table should contain basic user information: their 
+									 position in the photo queue, and the running match-score for each city. The second 
+									 table could either live in the Back End or on the user's device.
+								</p>
+								<p>
+									To complete the core of the app, a very simple model should update user match-score 
+									data. This model should take the current user score values and either add or subtract 
+									the current user input image array based on included Boolean values. Because of the 
+									simplicity of this model, it should live natively in the BE of the app and does not 
+									justify a separate DS API. Of course, this model could be greatly improved upon with 
+									only slightly more complex arithmetic to calculate the running total, but the general 
+									idea is there with just addition and subtraction.
+								</p>
+
+								<hr />
+								<h3>The Script (easier than anticipated):</h3>
+
 								<p>
 									I started small with just nine photos between three cities. I put the photos 
 									in folders in the same root directory as my project notebooks. Once I had 
@@ -68,6 +147,7 @@
 									four photos for each of the 256 cities. Good thing I went small, because it took 
 									me several hours to download these with my poor connection.
 								</p>
+								<h3>The CNN:</h3>
                                 <p>
 									I decided to force all of my photos to be the same size. Maybe there is another 
 									way of doing this, but figured that the input vectors were all going need to be 
@@ -192,9 +272,27 @@ x1 = res.output
 x1 = GlobalAveragePooling2D()(x1)
 predictions = Dense(y_train[0].shape[0], activation='softmax')(x1)
 model = Model(res.input, predictions)</code></pre>
-								<p>Above, I've taken the absolutely beastly Resnet50 deep NN and simply sewed on my own input and output layers. I'm not going to pretend that I understand how the good folks at Mathworks dreamed up the layer structure of this deep neural net. However, I think it's worth taking a moment to appreciate what's under the hood on this model - prepare to scroll a ways. My model layers can be inspected using, model.summary:</p>
-
-
+								<p>Above, I've taken the beastly Resnet50 deep NN and simply Frankenstein  on my
+									 own input and output layers. I'm not going to pretend that I understand how 
+									 Resnet's layer structure was dreamed up. However, I think it's worth taking 
+									 a moment to appreciate what's under the hood on this model - prepare to scroll 
+									 a ways. My model layers can be inspected using, model.summary:
+								</p>
+								<p> For the sake of readablity, I put the model layer summary
+									on <a href="resnet50.html">it's own page</a>.
+								</p>
+								<p>
+									If you dared navigate to the model summary, you'll know: it's a beast. 
+									You may have noticed on the last couple lines: over 24 million parameters, over a 
+									half millions of which are trainable! Mind boggling.
+								</p>
+								<p>
+									It feels a bit like cheating to add just a half-dozen lines of code to 
+									re-purpose it. The fifty layers are ResNet50 have been trained on millions 
+									of photos to identify all kinds of particular objects. Perhaps targeting 
+									ities captured in pictures is a wildly different affair, but it seems like 
+									a good place to start for picking up on subtle content of photos.
+								</p>
 
 
 				<!-- Footer -->
