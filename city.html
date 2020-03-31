@@ -127,7 +127,23 @@
 									only slightly more complex arithmetic to calculate the running total, but the general 
 									idea is there with just addition and subtraction.
 								</p>
-
+								<h4>The general flow through this diagram is:</h4>
+								<h5>The user initiated the app </h5>
+								<ol>
+									<li>A request is sent to the User Swipe Data table for the queue position</li>
+									<li>This key is used to access the next photo in the Photo Info table</li>
+									<li>A fresh photo URL is served</li>
+									<li>User input, left/right swipe plus PhotoID, is sent to BE model</li>
+									<li>Model gets current swipe data and does arithmetic to update running total, updates user data table</li>
+									<li>This cycle loops</li>
+								</ol>
+								
+								<h5>A separate button for resulting recommendation</h5>
+								<ol>
+									<li>Sends a request to User Swipe Data table</li>
+									<li>Model sorts running totals</li>
+									<li>Returns a list of top matched cities</li>
+								</ol>
 								<hr />
 								<h3>The Script (easier than anticipated):</h3>
 
