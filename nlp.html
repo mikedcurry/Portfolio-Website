@@ -137,37 +137,31 @@ finder = nn.kneighbors(new.todense())</code></pre>
 								</p>
 								<pre><code>finder[1]</code></pre>
 								<p>
-									drops us an of the location numbers where the most simular quotes according to the kNN model. The array looks like this:
+									drops us an of the location numbers where the most similar quotes according to the kNN model. The array looks like this:
 								</p>
 								<pre><code>array([[444, 891, 702, 277, 611]])</code></pre>
 								<p>
-									We can filter our original dataframe using these numbers to find the most simular quotes to our input text. For example:
+									We can filter our original dataframe using these numbers to find the most similar quotes to our input text. For example:
 								</p>
 								<pre><code>df['spoken_words'][891]</code></pre>
-								<h4>Here are the results of all that hard work:</h4>
-								<div class="box">
-								<p>
-									"Now, that's odd. I've just robbed a man of his livelihood, and yet I feel strangely empty. Tell you what, Smithers. Have him beaten to a pulp."
+								<p> 
+									The results of our kNN search from the above input text:
 								</p>
+								<pre><code>"Show me the thirty bucks, because if you ain't got it, I ain't gettin' off the stool."</code></pre>
 								<p>
-									"Tell you what. I'll show you something very special if you promise to put your grubby little hands behind your back and keep 'em there."
+									Not entirely convincing, so let's try something more familiar.
+									 This time, I'll grab the top five matches all at once.
 								</p>
-								<p>
-									"It's no use, fellows. Another comic book has returned to the earth from whence it came."
-								</p>
-								<p>
-									'Go on, Neddie.'
-								</p>
-								<p>
-									'Nah.'
-								</p>
-								</div>
-								<p>
-									Well, that was interesting, but I'm not entirely confident on the qaulity of these results. 
-								</p>
+								<pre><code>in_text = 'don\'t have a frog man'
 
-								<br>
-                                <p>
+Top 5 Results:
+'Don't be a fool, Aunt Selma. That man is scum.'
+'No, Pie Man! Don't do it!' 
+'Now don't you pull that cord, young man!' 
+'Don't have a cow, man!' 
+'Please, FBI man, don't throw us in jail. We just made one mistake.'</code></pre>
+
+								<hr />
                                     <header>
 										<h4>Flask API deployed on Heroku</h4>
                                     </header>
@@ -233,123 +227,151 @@ def retrieval():
 		r.headers["Content-Type"] = "text/json; charset=utf-8"
 		return r</code></pre>                                   
 
-                                </p>
+								</p>
 								<br>
-                                <p>
+								<hr />
                                     <header>
 										<h4>Homer quote generator using a neural network</h4>
                                     </header>
-                                    Block of text ... Keras ...
-                                <!-- Preformatted Code -->
-								<pre><code>laikdskjahsdf
-adluofhsdkjh</code></pre>
-                                   Block of text ... tokenizer ...
-                                   <pre><code>akjsdfkjha
-alkjsdhfkajsdh</code></pre>                                   
+                                    <p>
+										While my web developer friends were figuring out how to hook 
+										up the kNN API to the front end of our search feature, along 
+										with finishing some of their own pet features, I began playing 
+										around with an idea for yet another feature that understandably 
+										never made the cut. It was, however, entertaining venture, and I 
+										think it was fundamentally a good idea even if it's not quite 
+										ready for production.
+									</p>
+									<p>
+										The idea was to take the entire opus of Homer Simpson and train 
+										a neural network on it using NLP to try to make a Homer Quote 
+										Generator. It's not an entirely far-fetched idea. As I am writting this,
+										I believe I may have figured out how to make it work better. In any case, 
+										here's what I've done so far.
+									</p>
+									<p>First I filtered my dateframe down to only Homer.</p>
+								<pre><code>homer_opus = df[df['raw_character_text'] == 'Homer Simpson'].reset_index()</code></pre>
+                                   <p>
+									I then chopped out the shorter quotes that were smaller than 64 
+									characters - a little arbitrary, but it's a nice number.
+								   </p>
+                                   <pre><code>homer_opus['spoken_words'] = homer_opus['spoken_words'].astype('str')
+mask = (homer_opus['spoken_words'].str.len() > 64)
+homer_opus = homer_opus.loc[mask]</code></pre>                                   
+                                <p>
+									Next I took the dataframe and exported the whole of these filtered Homer quotes into 
+									a txt file as one big blob of text. Maybe I should have kept quotes in smaller units 
+									and buffered the end of each with zeros as I vectorized, but the blob method seemed 
+									easier to start out with. Instead of using spaCy and TFIDF to work with words, I 
+									decided to start by training the Neural Network from the level of individual characters. 
+									As I am writing this several months later, it is apparent what I should do to make this 
+									feature work if I can carve out the time to come back to it.
+								</p>
+								<p>
+									After converting all the text to lowercase and removing punctuation, I then numbered 
+									every character.
+								</p>
+								<pre><code># create mapping of unique chars to integers
+chars = sorted(list(set(raw_text)))
+char_to_int = dict((c, i) for i, c in enumerate(chars))</code></pre>
+								<p>
+									This reduced the 1.5 million or so characters of Homer's opus into a long string of 69 
+									different numbers. Starting from left to right, I then took each successive window of 64 
+									characters, including overlap, and added them to a list that I split into X and Y. I then 
+									normalized my X values and categorically encoded my target vector Y.
+								</p>
+								<p>
+									After a number of iterations, I settled into a relatively simply Keras model NN with only 
+									three layers with dropout layers in between.
+								</p>
+								<pre><code>model = Sequential()
+model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
+model.add(Dropout(0.10))
+model.add(LSTM(256))
+model.add(Dropout(0.10))
+model.add(Dense(y.shape[1], activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer='adam')</code></pre>
+								<p>
+									After compiling my model, I fit it and ran 100 epochs - with batch sizes perhaps too small. 
+									Even with this relatively thin model, each epoch took around 3 minutes running on a P6000 
+									Paperspace GPU. It took a stupid amount of time to get the the loss to finally settle 
+									around 1.5. By then, my five days to slap this project together was as at an end, with no 
+									time to try to refactor my approach to the problem.	
+								</p>
+								<p>
+									My results are something at least vaguely resembling the English language. I built a 
+									function to look inside what I had made. The model grabs a random chunk of Homer text as 
+									a seed for the model to generate from.
+								</p>
+								<pre><code># pick a random seed
+start = np.random.randint(0, len(dataX)-1)
+pattern = dataX[start]
 
-                                </p>
-                                <br></br>
+print ("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
+# generate characters
+for i in range(80):
+	x = np.reshape(pattern, (1, len(pattern), 1))
+	x = x / float(n_vocab)
+	prediction = model.predict(x, verbose=0)
+	index = np.argmax(prediction)
+	result = int_to_char[index]
+	seq_in = [int_to_char[value] for value in pattern]
+	sys.stdout.write(result)
+	pattern.append(index)
+	pattern = pattern[1:len(pattern)]</code></pre>
+								<p>
+									I will leave my reader to decide where the seed ends and where the generator begins. 
+									It's really not bad considering the model started with individual characters. However, 
+									the model may not be ready for any kind of Turing test.
+								</p>
+								<div class="box">
+									<p>"nice to meet you.
+										i had no idea.
+										mr. burns, i think
+										we can start the best friends in the world.
+										i was the people who can do that"</p>
+								</div>
 
-                                
-								<pre><code>
-# create vectorizer
-tfidf = TfidfVectorizer(stop_words='english',
-lowercase=True,
-min_df=0.003)
-
-
-# create sparse matrix of lemmas
-sparse = tfidf.fit_transform(df['spoken_words'])
-
-
-# create dense matrix from sparse matrix
-dense = sparse.todense()
-
-
-# create dataframe from dense matrix\
-dense_df = pd.DataFrame(dense, columns=tfidf.get_feature_names())
-
-
-# create NearestNeighbors model and fits it to dense dataframe
-nn_model = NearestNeighbors(n_neighbors=24,
-leaf_size=358,  # arbitrary number
-algorithm='kd_tree')
-nn_model.fit(dense_df)
-
-
-# pickles the models for use in app to avoid training more than once
-dump(tfidf, 'tfidf.joblib')
-dump(nn_model, 'nn_model.joblib')
-                                                                    </code></pre>
 							</section>
 
 					</div>
 
-				<!-- Footer -->
-					<footer id="footer">
-						<!-- <section>
-							<form method="post" action="#">
-								<div class="fields">
-									<div class="field">
-										<label for="name">Name</label>
-										<input type="text" name="name" id="name" />
-									</div>
-									<div class="field">
-										<label for="email">Email</label>
-										<input type="text" name="email" id="email" />
-									</div>
-									<div class="field">
-										<label for="message">Message</label>
-										<textarea name="message" id="message" rows="3"></textarea>
-									</div>
-								</div>
-								<ul class="actions">
-									<li><input type="submit" value="Send Message" /></li>
-								</ul>
-							</form>
-						</section> -->
-						<section class="split contact">
-							<!-- <section class="alt">
-								<h3>Address</h3>
-								<p>1234 Somewhere Road #87257<br />
-								Nashville, TN 00000-0000</p>
-							</section> -->
-							<section class="split contact">
-								<section>
-									<h3>Phone</h3>
-									<p><a href="tel:+15757709143">(575) 770-9143</a></p>
+								<!-- Footer -->
+								<footer id="footer">
+									<section class="split contact">
+										<section>
+											<h3>Phone</h3>
+											<p><a href="tel:+15757709143">(575) 770-9143</a></p>
+										</section>
+										<section>
+											<h3>Email</h3>
+											<p><a href="#">mikecurry.ds@gmail.com</a></p>
+										</section>
+										<section>
+											<h3>Social</h3>
+											<ul class="icons alt">
+												<li><a href="https://www.linkedin.com/in/michael-curry-7ab92118a/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+												<li><a href="https://medium.com/@mdcurry1138" class="icon brands alt fa-medium"><span class="label">Medium</span></a></li>
+												<li><a href="https://twitter.com/MikeDCurry" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+												<li><a href="https://github.com/mikedcurry" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+											</ul>
+										</section>
 								</section>
-								<section>
-									<h3>Email</h3>
-									<p><a href="#">mikecurry.ds@gmail.com</a></p>
-								</section>
-								<section>
-									<h3>Social</h3>
-									<ul class="icons alt">
-										<li><a href="https://www.linkedin.com/in/michael-curry-7ab92118a/" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
-										<li><a href="https://medium.com/@mdcurry1138" class="icon brands alt fa-medium"><span class="label">Medium</span></a></li>
-										<li><a href="https://twitter.com/MikeDCurry" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
-										<li><a href="https://github.com/mikedcurry" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-									</ul>
-								</section>
-						</section>
-					</footer>
-
-				<!-- Copyright -->
-					<div id="copyright">
-						<ul><li>Michael Curry</li><li>Data Scientist</li></ul>
-					</div>
-
-			</div>
-
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
-</html>
+							</footer>
+				
+						<!-- Copyright -->
+							<div id="copyright">
+								<ul><li>Michael Curry</li><li>Data Scientist</li></ul>
+							</div>
+				
+					<!-- Scripts -->
+						<script src="assets/js/jquery.min.js"></script>
+						<script src="assets/js/jquery.scrollex.min.js"></script>
+						<script src="assets/js/jquery.scrolly.min.js"></script>
+						<script src="assets/js/browser.min.js"></script>
+						<script src="assets/js/breakpoints.min.js"></script>
+						<script src="assets/js/util.js"></script>
+						<script src="assets/js/main.js"></script>
+				
+				</body>
+				</html>
