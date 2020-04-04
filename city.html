@@ -181,11 +181,11 @@ def process_img_path(img_path):
 								<p>
 									Loading one of my photos to take a look:
 								</p>
+								<pre><code>image.load_img('./data/santa_fe/sfe1.jpg', target_size=(224,224))</code></pre>
 								<div class='image-container'>
-									<pre><code>image.load_img('./data/santa_fe/sfe1.jpg', target_size=(224,224))</code></pre>
-									<p><span class="image left"><img src="images\city_sample_pic.png" alt="" /></span>
+									<p><span><img src="images\city_sample_pic.png" alt="" /></span>
 
-									<p>
+									<p class='image-text'>
 										Then I wrote a short function to apply this size requirement to each photo as it adds 
 										them as an array of values to a X vector.
 									</p>
