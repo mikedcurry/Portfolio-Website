@@ -157,11 +157,11 @@ robust_df[numeric.columns] = df_temp</code></pre>
 									This gave more influence to factors with right-leaning distributions. I had 
 									to find a way to create perfectly uniform distributions for each factor. 
 								</p>
-								
-								<span class="image left"><img src="images\flat_dist.png" alt="" /></span>
-                                <header>
+								<header>
                                     <h4>A simple solution to produce a flat distribution</h4>
                                 </header>
+								<span class="image left"><img src="images\flat_dist.png" alt="" /></span>
+
                                 <p>
 									Finally, it occurred to me that what I was looking for was a flat distribution 
 									which could be accomplished much more easily by ranking each factor 
@@ -173,53 +173,161 @@ robust_df[numeric.columns] = df_temp</code></pre>
 									By the time I had resolved these issues with data distribution, my Data Science
 									partner had developed a rudamentary flask API, deployed it Heroku, and was serving 
 									results from my initial function to the Front End of our Web Dev team. Even while the 
-									initial results were none-sensical the team was able to build around the model until it 
+									initial results were nonsensical the team was able to build around the model until it 
 									was improved. Updated the data base to improve the results was a seemless push, with 
 									complete seperation of our respective concerns. Then when the average was taken across multiple
 									factors no bias was given. 
 								</p>
 								<br>
-								<h4>Release Cycle 2: Data Visualization</h4>
+								<h2>Release Cycle 2: Data Visualization</h2>
 								<p>
-									The goal of the second release cycle was to provide users with further insight into 
-									how cities compared accross multiple factors. Once the user had selected their factors,
-									our model provided a top ten list of recommended cities. Our data visuals, in turn, was
-									to give the user a breakdown of each factor in comparison to other cities. 
+									After experimenting with color pallets and other package versions of a vertically 
+									stacked bar graph, I decided that to do something a little more unique with my data 
+									visualization. I really like the way violin plots make it easy to compare 
+									distributions of a handful of factors all at once.
 								</p>
-								<div class="image main"><img src="images\stacked_bar.png" alt="" /></div>
 								<p>
-									Our first itereation was the most simple - a vertically stacked bar chart. A user could see,
+									My first itereation was the most simple - a vertically stacked bar chart using Plotly. A user could see,
 									for example, that Portland ranks higher than Pittsburgh when combining each selected factor,
 									but that the cost of living and economic growth rates are far superior in Pittspurgh.
 								</p>
-								<span class="image right">
-									<div class="image main"><img src="images\ViolinPlot.png" alt="" /></div>
-									<div class="image main"><img src="images\swarm_violin.png" alt="" /></div>
-								</span>
-								alkiudsgfkah
-								<div class="image main"><img src="images\slug_plot.png" alt="" /></div>
-								<div class="image main"><img src="images\radial_bargraph.png" alt="" /></div>
-								<!-- Preformatted Code -->
+								<p>
+									First I started by graphing one Violin Plot using the seaborn library.
+								</p>
+								<pre><code>import seaborn as sns
+sns.set(style="whitegrid")
+ax = sns.violinplot(x=redu_df['avg_commute_time'])</code></pre>
+								<span class="image left"><img src="images\violin_plot_1factor.JPG" alt="" /></span>
+								<p>
+									Although the above seaborn violin plot is essentially the same as a Kernel Density Estimate 
+									plot, the mirrored effect in combination with an overlay of a box 
+									plot gives a user a lot of information in one spot. Here we see 
+									that the medium of average commute times is just over 25 minutes,
+									 while the vast majority of average commute times for our 256 cities
+									  is below 35 minutes. We can see that there are few outliers to the 
+									  extreme right where some cities' commuters spend about 45 minutes
+									   on average.
+								</p>
+								<p>
+									Comparing multiple factors first required standardizing the data. Otherwise, the 
+									distributions would not be on the same scale. For example, income 
+									tax data rate would be mostly in the hundredth's place while commute
+									 time would be about three orders of magnitude bigger - not the 
+									 most visually accessible graph.
+								</p>
+								<pre><code>x = ['cost_of_living', 'score_outdoors', 'score_education', 'score_commute']
+sns.set(style="whitegrid")
+g = sns.catplot(data=norm_df[x], kind="violin", split=True, height=4, aspect=1.5, orient="h");</code></pre>
+								<span class="image main"><img src="images\violin_multiple.JPG" alt="" /></span>
+								<p>
+									A user can take the top handful of factors and compare the distribution of those 
+									factors between all cities under consideration. For example, cost of living 
+									appears to be a fairly bell-shaped distribution, while education is bipolar.
+								</p>
+								<p>
+									Next I played with the same information in a slightly different format, 
+									known as a swarm plot.
+								</p>
+								<pre><code>import matplotlib.pyplot as plt
+
+ax = sns.catplot(data=norm_df[x], kind="swarm", split=True, height=5, aspect=1.5, orient="h");
+
+plt.axvline(x=.7)</code></pre>
+								<span class="image main"><img src="images\swarm_plot_multiple.JPG" alt="" /></span>
+								<p>
+									Although, again this information is essentially nothing more than a distribution 
+									plot, swarm plots are especially good at accessing a visual understanding 
+									of where clusters are at in the data. Looking again at the bipolar distribution 
+									of education ratings, for example, with this plot one can see that there is a 
+									rather large cluster to the left around 0.2 tapering out slowly toward the
+									 center. Whereas on the right side of the education distribution there appears
+									  to be a push to be in the top 25%. While the violin plot is more immediately
+									   accessible, it smooths our these nuances.
+								</p>
+								<p>
+									So, why not combine the two graphs? Do so is not more complicated than 
+									calling them both on the same axis and changing the colors of the overlaid
+									 plot.
+								</p>
+								<span class="image main"><img src="images\swarm_violin.png" alt="" /></span>
+								<p>
+									My UX designer decided that these plots were too difficult to interpret and 
+									asked me for something that was more simple and easy to understand. After some 
+									back and forth, I came up with the idea of a "slug plot" and went back to 
+									MatPlotLib to get extra control of fine details.
+								</p>
+								<pre><code>import scipy.stats as stats
+import numpy as np
+import matplotlib.pyplot as plt
+
+def displot(df, city, factor):
+	fig, ax = plt.subplots(dpi=200)
+	plt.style.use("seaborn")
+
+	# Turn off tick labels
+	ax.set_yticklabels([])
+	ax.set_xticklabels([])
+
+	# dist = redu_df['score_outdoors'].copy()
+	kde = stats.gaussian_kde(redu_df[factor])
+
+	# plot complete kde curve as line
+	pos = np.linspace(redu_df[factor].min(), redu_df[factor].max(), 101)
+	plt.plot(pos, kde(pos))
+
+	# find value x of factor in specified city
+	x = redu_df.loc[redu_df['short_name'] == city][factor].tolist()[0]]
+
+	# plot shaded kde only left of x
+	shade = np.linspace(dist.min(), x, 101)
+	plt.fill_between(shade,kde(shade), alpha=0.6)
+
+	# plt.figure(figsize=(3,1))
+	fig = plt.gcf()
+	fig.set_size_inches(6, .8)
+	plt.ylim(0,None)
+
+	# plt.show()
+	plt.axvline(x=x, color='black', lw=2)
+
+	moo = int(round(ranked_df.loc[ranked_df['short_name'] == city][factor].tolist()[0], 2)*100)
+	text = "{}'s {} Percentile: {}%".format(city, factor, moo)        
+	plt.xlabel(text)
+
+	return plt.savefig('testplot.png')
+
+# example
+plot(df=redu_df, city='Portland', factor='score_outdoors')</code></pre>
+								<span class="image main"><img src="images\slug_plot.png" alt="" /></span>
+								<p>
+									MatPlotLib is always a lot of code for a single graph, but it's always my 
+									go-to when I need to do something truly custom. The idea of my "slug plot" 
+									distribution was that I could build it into a function and produce however
+									 many of the plots needs for a given city and a list of important factors. 
+									 Being squished horizontally, my web folk could provide the user with a number
+									  of stacked distributions for easy comparison. Well, my web folk thought it 
+									  was too boring, plus they didn't want to have to deal with designing around 
+									  multiple graphs being called to the front end.
+								</p>
+								<p>
+									It was back to the drawing board again. I was asked to make a visual that compared
+									 multiple factors for a given city with as much bang for my buck in a single 
+									 API served data visual. So I made this.
+								</p>
 								<pre><code>import numpy as np
 import matplotlib.pyplot as plt
 
 
-city = 'Portland'
-x = ["score_commute", "score_cost_of_living", "score_economy", "score_education", 
-		"score_environmental_quality", "score_healthcare", "score_housing", 
-		"score_internet_access", "score_leisure_&_culture", "score_outdoors", 
-		"score_safety", "score_startups", "score_taxation", "ranked_population"]
-
 def radar_plt(df=ranked_df, city=city, factors=x):
-
 	test = df.loc[df['short_name'] == city][factors].T.reset_index()
 	test.columns = ['theta', 'r']
 	test['r'] = test['r']*100
 	test['theta'] = test['theta'].replace('_', ' ', regex=True
 		).replace('score ', '', regex=True
-			).replace('ranked ', '', 
-				regex=True
+			).replace('ranked ', '',
+			regex=True
 			).str.title()
+
 	test
 
 	plt.style.use("bmh")
@@ -229,33 +337,52 @@ def radar_plt(df=ranked_df, city=city, factors=x):
 	ax.spines['polar'].set_visible(False)
 
 	rank = test['r']
+	# sample = np.random.uniform(low=0.5, high=13.3, size=(15,))
 	N = test['r'].shape[0]
+	# colors= '#f51646'
+	# colors = plt.cm.PuRd(test['r'] / 10)
+	# colors = plt.cm.viridis(test['r'] / 100)
 	colors = plt.cm.GnBu(test['r'] / 150)
 
 	width = np.pi / N*1.8
-	theta = np.arange(0, 2*np.pi, 2*np.pi/N) 
+	theta = np.arange(0, 2*np.pi, 2*np.pi/N)
 	bars = ax.bar(theta, rank, width=width, color=colors, alpha=0.9)
 
 	ax.yaxis.grid(True)
 	ax.set_xticks(theta)
 	ax.set_xticklabels(test['theta'], fontweight='bold', fontsize=12)# , fontname='FontAwesome')
-
+	
 	# puts % on y tick labels
 	y_label_text = ["{}%".format(int(loc)) for loc in plt.yticks()[0]]
 	ax.set_yticklabels(y_label_text)
-
+	
 	# rrr = redu_df.loc[redu_df['short_name'] == city][x].tolist()[0]
 	# plt.axvline(x=rrr, color='black', lw=2)
-
-
+	
 	# print(["{}%".format(int(loc)) for loc in plt.yticks()[0]])
 	# return plt.show()
 	return plt.savefig('radarplot.png', dpi=400)
 
 
 # Example:
+city = 'Portland'
+x = ["score_commute", "score_cost_of_living", "score_economy", "score_education", "score_environmental_quality", "score_healthcare", "score_housing", "score_internet_access", "score_leisure_&_culture", "score_outdoors", "score_safety", "score_startups", "score_taxation", "ranked_population"]
 radar_plt()</code></pre>
-
+								<span class="image main"><img src="images\radial_bargraph.png" alt="" /></span>
+								<p>
+									The radar bar plot above, for Portland Oregon, gives the 
+									percentile rank for a given input city for each specified factor. 
+									The color is set to be darker, thus more visible, for higher scores. 
+									This allows the user to immediately see which categories are a city's 
+									strongest suites.
+								</p>
+								<p>
+									In the following three weeks, my web design partners once again 
+									redesigned the data visual for this project in our native Javascript 
+									back-end to increase the loading speed of our app. All that I had 
+									contributed to this aspect of the project lives on in branch history. 
+									Se la vie.
+								</p>
 
 							</section>
 
