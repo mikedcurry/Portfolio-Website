@@ -89,9 +89,9 @@
 def rankify(df, factors, top=10, quant=.75):
 	df_copy = df.copy()
 	for i in factors:
-	df_copy = df_copy[df[i] > df_copy[i].quantile(quant)]
-	df_copy['score'] = df_copy[factors].mean(axis=1)
-	df_copy = df_copy.sort_values('score', ascending=False)
+	   	df_copy = df_copy[df[i] > df_copy[i].quantile(quant)]
+		df_copy['score'] = df_copy[factors].mean(axis=1)
+		df_copy = df_copy.sort_values('score', ascending=False)
 	return df_copy['name'].head(top).tolist()</code></pre>
                                 <p>
 									For a given input dataframe and  list of factors, the above function takes only the cities that appear in the intersection of the top 25% for each of the factors listed. In other words, a city with a low score in any of the categories listed is axed from the list. From there, a mean is taken across each row to provide a relative score for comparing to other cities, and cities are sorted by the resulting values.                         
