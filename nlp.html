@@ -44,7 +44,7 @@
 							<section class="post">
 								<header class="major">
                                     <h1>Simpsons Say<br /></h1>
-                                    <p> A Natural Language Processing search engine using Term Frequency minus 
+                                    <p> A Natural Language Processing search engine using Term Frequency - 
 										Inverse Document Frequency (TF-IDF) and k-Nearest Neighbors (k-NN).
 									</p>
 								</header>
@@ -59,11 +59,27 @@
 								<div class="image main"><img src="images\QuoteSearch.png" alt="" />
 											<!-- <a href="https://simpsons-says.jwatt10.now.sh/quotes" class="button">Deployed App</a> -->
 									<br>
-								<p>After several months of working mostly alone through a combination of crash-course materials in Machine Learning, and reviewing Stats and Linear Algebra, I was ready to team up with a handful of my friends and apply what I was learning to something fun. I figured out pretty quickly that I was speaking an entirely different language than my web-dev buddies; I had primarily been living in the temperate climate of Python, and they had been lounging on the beaches of JavaScript. We had to start by talking in broad-strokes. We decided to do something to do with the Simpsons, and as it turned out transcripts for all 673 episodes were readily available to play with.
+								<p>After several months of working mostly alone through a combination of crash-course materials in Machine Learning 
+									and reviewing Stats and Linear Algebra, I was ready to team up with a handful of my friends and apply what 
+									I was learning to something fun. I figured out pretty quickly that I was speaking an entirely different 
+									language than my web-dev buddies; I had primarily been living in the temperate climate of Python, and they 
+									had been lounging on the beaches of JavaScript. We had to start by talking in broad-strokes. We decided to 
+									build something to do with the Simpsons, and as it turned out transcripts for all 673 episodes were readily 
+									available for people like use to play with.
                                 </p>
-                                <p>Our idea was a web app that targeted Simpsons fans. As a baseline, we could build some kind of a quote finder. The user could give the gist of a something said on a Simpsons episode and our search engine would produce the most similar Simpsons quotes - something like how  Soundhound finds songs when a user hums their best impression of a song they can't get out of their head
+                                <p>Our idea was a web app that targeted Simpsons fans. As a baseline, we could build some kind of a quote finder. 
+									The user could give the gist of a something said on a Simpsons episode and our search engine would produce 
+									the most similar Simpsons quotes - something like how  Soundhound finds songs when a user hums their best 
+									impression of a song they can't get out of their head
                                 </p>
-                                <p>At this point, I had about two days of exposure to Natural Language Processing (NLP), and I had no idea how to get my model to interact with our web app being developed. I hadn't really though about what an API is until I started this project. After about a day of stumbling through google searches and fumbling my way through stack-overflow posts, it became apparent that I was going to have to figure it out - I needed an API to feed the results of my model, written in Python, over to my web developers. I'd built a couple flask web apps. Building a flask api was not terribly different - instead of a html front end, the routes in the flask app serve as End Points to connects to the web folk.
+                                <p>At this point, I had about two days of exposure to Natural Language Processing (NLP), and I had no idea 
+									how to get my model to interact with our web app being developed. I hadn't really thought about what an API 
+									is until I started this project. After about a day of stumbling through Google searches and fumbling my way 
+									through stack-overflow posts, it became apparent that I was going to have to figure it out - I needed an API 
+									to feed the results of my model, written in Python, over to my web developers. I'd built a couple flask web apps. 
+									Building a flask api was not terribly different - instead of a html front end, the routes in the flask app 
+									serve as End Points to connect to the web folk. My model would serve up results in JSON format when a Get request was sent to 
+									our flask API.
                                 </p>
                 
 								
@@ -71,7 +87,16 @@
                                     <header>
 										<h4>Natural Language Processing</h4>
                                     </header>
-                                    <p>The first step to applying any math to a collection of words is to tokenize  them - we  identify which blobs of charters represent a word disregarding capitalization and punctuation and transform all those carefully composed sentences and paragraphs into nothing more than a list of words separated by commas. Then we can throw out stopwords - words that are not particularly helpful in determining what makes a document unique. If we are comparing collections of words, then what makes one document different than another can be viewed not only as the word counts, but the subtle mapping of these words. To start to dig into these subtle word maps, in this project I used spaCy. Among many other powerful tools not used here, I have used spaCy's list of stopwords in my tokenizing function.
+                                    <p>The first step to applying any mathematical processing to a collection of words is to tokenize them. We  identify 
+										which blobs of characters represent a word disregarding capitalization and punctuation and transform 
+										all those carefully composed sentences and paragraphs into a list of words 
+										separated by commas. Then we can throw out 'stopwords' - words that are not particularly helpful 
+										in determining what makes a document unique. If we are comparing collections of words, then the qualities which
+										makes one document different from another can be viewed not only as the word counts, but the 
+										subtle mapping of these words. In this project I 
+										used spaCy to begin digging into these subtle word maps. Among many other powerful tools not used here, I have 
+										used spaCy's list of stopwords 
+										in my tokenizing function.
 									</p>
 									<p>
 									First, I instantiated spaCy and borrowed a collection of stop words from it.
@@ -80,7 +105,8 @@
 								<pre><code>nlp = spacy.load('en_core_web_lg')
 STOPWORDS = nlp.Defaults.stop_words.union({' ', ''})</code></pre>
                                    <p>
-									I created a tokenizing function that applies some basic regex, python string processing, and uses spacy to do the heavy lifting of the actual tokenization.
+									I created a tokenizing function that applies some basic regex, python string processing, and uses spacy to 
+									do the heavy lifting of the actual tokenization.
 								   </p>
                                    <pre><code>def tokenize(doc):
     text = re.sub(r'[^a-zA-Z ]', '', doc)
@@ -92,27 +118,46 @@ STOPWORDS = nlp.Defaults.stop_words.union({' ', ''})</code></pre>
 
                                 </p>
 								<p>
-									SpaCy is a pretty big package and has to be run locally. At the beginning of this project, I made the mistake of trying to include it in my project's pip environment. Even alone without the other project models, it was far too big to be deployed. There are more compact versions of the spaCy package that might be added to the final pickled model to live in the deployed app. In this case, I simply used spaCy to tokenize my words and used another package vectorize them and mess with the language mapping, which spaCy has quite a bit of documentation on.
+									SpaCy is a pretty big package and has to be run locally. At the beginning of this project,
+									 I made the mistake of trying to include it in my project's pip environment. Even alone 
+									 without the other project models, it was far too big to be deployed. There are more 
+									 compact versions of the spaCy package that might be added to the final pickled model 
+									 to live in the deployed app. In this case, I simply used spaCy to tokenize my words 
+									 and used another package to vectorize them and mess with the language mapping.
 								</p>
 								<p>
-									Before vectorizing any words, I integrated my tokenized words back into my dataframe, by creating a new column that applies my tonkenize function above to each line from the Simpsons.
+									Before vectorizing any words, I integrated my tokenized words back into my dataframe, 
+									by creating a new column that applies my tonkenizing function above to each line from 
+									the Simpsons.
 								</p>
 								<pre><code>df['tokens'] = df['spoken_words'].apply(tokenize)</code></pre>
 								<p>
 									<span class="image right"><img src="images\tfidf.png" alt="" /></span>
 									<p>
-										In order to do some powerful black-box-magic mathematical wizardry, I used sklearn's TF-IDF vectorizer. A rudenmetary way of vectorizing a set of words would be to simply count the occurrence of each word in a collection and compare it to other collections. These counts could be represented as a sparse matrix, mostly of zeros, counting the occurance of each particular word in a collection. With my more wizardry, this sparse matrix can be crunched down into a "dense matrix" that preserve the same essential information about word counts, but is easier to push through ML models. What makes Term Frequency - Inverse Document Frequency (TF-IDF) unique is that it finds the most important words, or lemmas, for identifying what makes a document unique. It does so by penalizing the term frequencies of words that are common across all documents which allows for each document's most different topics to rise to the top.
+										In order to do some powerful black-box-magic mathematical wizardry, I used 
+										Scikit-learn's TF-IDF vectorizer. A rudmentary way to vectorize a set of words 
+										is to simply count the occurrence of each word in a collection and 
+										compare it to other collections. These counts could be represented as a 
+										sparse matrix, mostly of zeros, counting the occurance of each particular 
+										word in a collection. With more wizardry, this sparse matrix can be crunched 
+										down into a "dense matrix" that preserves the same essential information about 
+										word counts, but is easier to push through ML models. What makes Term Frequency - 
+										Inverse Document Frequency (TF-IDF) unique is that it finds the most important 
+										words, or lemmas, for identifying what makes a document unique. It does so by 
+										penalizing the term frequencies of words that are common across all documents 
+										which allows for each document's most different topics to rise to the top.
 									</p>
 								</p>
 								<p>
-									Still exploring in my Jupyter notebook, I instantiate sklearn's TF-IDF vectorizer.
+									Still exploring in my Jupyter notebook, I instantiate Scikit-learn's TF-IDF vectorizer.
 								</p>
 								<pre><code>from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Instantiate vectorizer object
 tfidf = TfidfVectorizer(stop_words=STOPWORDS, lowercase=True, min_df=0.005, max_df=0.95)</code></pre>
 								<p>
-									I then create a sparse matrix, convert it to a dense matrix, and convert the results into an inspect-able dataframe.
+									I then create a sparse matrix, convert it to a dense matrix, and convert the results 
+									into an inspect-able dataframe.
 								</p>
 								<pre><code># Create a vocabulary and get word counts per document
 sparse = tfidf.fit_transform(df['spoken_words'])
@@ -140,15 +185,19 @@ nn.fit(dtm)</code></pre>
 new = tfidf.transform([in_text])
 finder = nn.kneighbors(new.todense())</code></pre>
 								<p>
-									This creates a python object that we then look into. At position 1, this object reveals the position of the text in our original dataframe that our quote is similar to. So,
+									This creates a Python object that we then look into. At position 1, this object 
+									reveals the position of the text in our original dataframe that our quote is similar to. 
+									So,
 								</p>
 								<pre><code>finder[1]</code></pre>
 								<p>
-									drops us an of the location numbers where the most similar quotes according to the kNN model. The array looks like this:
+									drops us a list of indices for locating the top five most similar quotes according 
+									to the kNN model. The array looks like this:
 								</p>
 								<pre><code>array([[444, 891, 702, 277, 611]])</code></pre>
 								<p>
-									We can filter our original dataframe using these numbers to find the most similar quotes to our input text. For example:
+									We can filter our original dataframe using these numbers to find the most similar 
+									quotes to our input text. For example:
 								</p>
 								<pre><code>df['spoken_words'][891]</code></pre>
 								<p> 
@@ -173,7 +222,12 @@ Top 5 Results:
 										<h4>Flask API deployed on Heroku</h4>
                                     </header>
 									<p>
-										The first step to building out our model's API was to create a model.py file with a condensed version of the code above as a single function that takes input text and outputs one simulacra quote in JSON format. At some point, this big function needed to account for the possibility of a blank submission, which the if/else statement accounts for. Otherwise, the function below condensed version of the work above.
+										The first step to building our model's API was to create a model.py file 
+										with a condensed version of the code above as a single function - taking 
+										input text and outputs one simulacra quote in JSON format. At some point, 
+										this big function needed to account for the possibility of a blank submission, 
+										for which the if/else statement accounts. Otherwise, the function below is a
+										condensed version of the work above.
 									</p>
                                 <!-- Preformatted Code -->
 								<pre><code>def get_quote(input_text):
@@ -217,7 +271,10 @@ Top 5 Results:
 
         return(json_output)</code></pre>
 									<p>
-										The trick to making the flask app into an API was to create a route that served as an endpoint. The web side of the project sends a GET request in the form of input text. The retrieval function in this route plugs the input text into the get_quote function above and returns the JSON object.
+										The trick to making the flask app into an API was to create a route 
+										that served as an endpoint. The web side of the project sends a GET 
+										request in the form of input text. The retrieval function in this 
+										route plugs the input text into the get_quote function above and returns the JSON object.
 									</p>
                                    <pre><code>@app.route('/input', methods=['GET'])
 def retrieval():
@@ -245,15 +302,16 @@ def retrieval():
 										up the kNN API to the front end of our search feature, along 
 										with finishing some of their own pet features, I began playing 
 										around with an idea for yet another feature that understandably 
-										never made the cut. It was, however, entertaining venture, and I 
+										never made the cut. It was, however, an entertaining venture, and I 
 										think it was fundamentally a good idea even if it's not quite 
 										ready for production.
 									</p>
 									<p>
 										The idea was to take the entire opus of Homer Simpson and train 
 										a neural network on it using NLP to try to make a Homer Quote 
-										Generator. It's not an entirely far-fetched idea. As I am writting this,
-										I believe I may have figured out how to make it work better. In any case, 
+										Generator. It's not an entirely far-fetched idea. As I am writing this,
+										I believe I may have figured out how to make it work better by using Scikit-learn
+										to map words instead of charters as I did with the search feature. In any case, 
 										here's what I've done so far.
 									</p>
 									<p>First I filtered my dateframe down to only Homer.</p>
@@ -288,8 +346,8 @@ char_to_int = dict((c, i) for i, c in enumerate(chars))</code></pre>
 									normalized my X values and categorically encoded my target vector Y.
 								</p>
 								<p>
-									After a number of iterations, I settled into a relatively simply Keras model NN with only 
-									three layers with dropout layers in between.
+									After a number of iterations, I settled into a relatively simple Keras model NN with only 
+									three layers built with dropout layers in between.
 								</p>
 								<pre><code>model = Sequential()
 model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
@@ -301,9 +359,11 @@ model.compile(loss='categorical_crossentropy', optimizer='adam')</code></pre>
 								<p>
 									After compiling my model, I fit it and ran 100 epochs - with batch sizes perhaps too small. 
 									Even with this relatively thin model, each epoch took around 3 minutes running on a P6000 
-									Paperspace GPU. It took a stupid amount of time to get the the loss to finally settle 
-									around 1.5. By then, my five days to slap this project together was as at an end, with no 
-									time to try to refactor my approach to the problem.	
+									Paperspace GPU. It took a stupid amount of time to get the loss to finally settle 
+									around 1.5. Unfortantly for me, I hadn't wrtten in early stopping, so I had to just watch it 
+									spin for a while even after reaching a sort of homeostasis. 
+									By the time I had my results, the five days to slap this project together was at an end, with no 
+									time left to refactor my approach to the problem.	
 								</p>
 								<p>
 									My results are something at least vaguely resembling the English language. I built a 

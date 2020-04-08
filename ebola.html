@@ -44,11 +44,11 @@
 							<section class="post">
 								<header class="major">
                                     <h1>Community Risk Factors of Ebola<br /></h1>
-                                    <p> Generic Overview of the project here</p>
+                                    <!-- <p> Generic Overview of the project here</p> -->
                                 </header>
                                 <p>Towards the end of the 2014-16 Ebola outbreak in West Africa the 
                                     American Red Cross together with its local partners extensively 
-                                    urveyed communities within a 15-kilometer distance of the shared 
+                                    surveyed communities within a 15-kilometer distance of the shared 
                                     borders between Guinea, Liberia, and Sierra Leone. The information 
                                     from this survey continues to serve as a fireline for containment 
                                     of the infection.
@@ -69,20 +69,20 @@
                                     of communities surveyed had cases of Ebola infection. Even at an initial 
                                     96% "accuracy", the predictive model is insufficiently tuned to identify 
                                     communities at risk. 
-                                    To properly adjust for the low probability of infection, the predicitve threshold of the model
+                                    To properly adjust for the low probability of infection, the predictive threshold of the model
                                     was set to 10%. Communities identified as at risk are up to 90%
                                     unlikely to have an infect.
-                                    [Below], adjust the model threshold to see the effect on model predictions. </p>
+                                    </p>
 
                                 <p style="padding: 0 0 0 0"><span class="image left"><img src="images\heatmap10.png" alt="" /></span>
                                     <header>
 										<h4>Recall / Precision Tradeoff</h4>
 									</header>
-                                    Adjusting the predictive threshold way down to 10%
+                                    Adjusting the predictive threshold down to 10%
                                     greatly improves recall at the cost of model precision. 
                                     
                                     Even so, for the sake of containment, efforts can be more efficiently focused on 
-                                    85% fewer locations. Effectively concentrating efforts on communities the highest 
+                                    85% fewer locations. Effectively concentrating efforts on communities with the highest 
                                     risk.
                                     
 
@@ -92,10 +92,10 @@
                                     <header>
 										<h4>Predictive Factors of Infection</h4>
 									</header>
-                                    After running a cleaned the survey data through a selected model 
+                                    After running a cleaned version the survey data through a selected model 
                                     (XGBClassier), the relative predictive power of each variable was assessed and 
                                     ranked according to importance. Of all the information collected in the survey,
-                                    79 factors were found to help our model accuractely predict infection. 
+                                    79 factors were found to help our model accurately predict infection. 
 
                                     Proximity was, not too surprisingly, among the top contributing factors for 
                                     predicting Ebola infection. 
@@ -106,10 +106,10 @@
                                     having Ebola infection. 
 
                                     Other major contributing factors include: the time it takes one to get treatment when needed, 
-                                    if representatives from health
+                                    whether representatives from health
                                     network organizations were active in the community, whether the community had access 
                                     to a women's health professional, if fruit was sold at the local market, access to 
-                                    a dedicated facility for child birthing, the proximity to a boarder crossing. 
+                                    a facility dedicated to childbirth, and the community's proximity to a border crossing. 
 
                                 </p>
                                 <br>
@@ -121,15 +121,15 @@
                                     probability of the community having any cases of Ebola. However, there was
                                     in fact at least one unconfirmed case of infection. 
                                     
-                                    Inspecting the plot above, the top two factors decreasing likelihood of infection: (1) this is a 
+                                    Inspecting the plot above, the top two factors that decrease likelihood of infection are: (1) Peivalor is a 
                                     relatively small community of 18 households; (2) the local market does not sell
                                     fresh fruit. 
                         
-                                    On the lefthand side in red, the top factor that lead our model to predict an increased 
-                                    infect risk was that the community had no person or facility designated for giving birth. 
+                                    On the left hand side in red, the top factor that leads our model to predict an increased 
+                                    infection risk was that the community had no person or facility designated for giving birth. 
                                     The next two biggest factors were interrelated. The member of the community surveyed specified that 
                                     there were other disasters experienced by the community during the outbreak, but the nature of the 
-                                    coinciding diaster was either not disclosed or was not included in the report.                         
+                                    coinciding disaster was either not disclosed or was not included in the report.                         
                                 </p>
 
                                 <header>
@@ -137,14 +137,14 @@
                                 </header>
                                 <p><span class="image"><img src="images\shapley_high.png" alt="" /></span>
                                     The village of Oremai was given the highest probability of infection at 97%. All 
-                                    told, this village of 100 households experience 4 cases of Ebola. 
+                                    told, this village of 100 households experienced 4 cases of Ebola. 
                         
-                                    Most notably from the diagram, there simply does not appear to be very many 
+                                    Most notable in the diagram, there simply does not appear to be very many 
                                     factors in this village's favor. The largest factor contributing to our model
-                                    predicting an infection in this community was that it experience two major 
+                                    predicting an infection in this community was that it experienced two major 
                                     disasters during the same time as the outbreak. The next largest factor was
-                                    the amount of time the it takes for the average community memeber to get to and
-                                    return from a treatment facility.                          
+                                    the amount of time it takes for the average community member to get to and
+                                    from a treatment facility.                          
                                 </p>
 
 							</section>

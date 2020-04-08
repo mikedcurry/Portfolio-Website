@@ -50,11 +50,11 @@
                                 <p>This project was put together over the course of eight weeks by a team of 14 
 									students with four disciplines - UX, iOS, Full Stack Web, and Data Science. 
 									We took two weeks to plan, five weeks to build, and one week to clean 
-									our documentation. Aside from myself, there was one other DS students on the team. 
-									I did a lot of the initial data cleaning, and took on the task of building a model for sorting 
-									cities by multiple factors. Later I also adopted the task of creating data visualizations. My DS partner 
-									worked primarily on our Data Science API to connect our model to both the iOS and 
-									web teams. I spent most of the five weeks of build-time alternating between 
+									our documentation. Aside from myself, there was one other DS member on the team. 
+									I did a lot of the initial data cleaning and took on the task of building a model for sorting 
+									cities by multiple factors. Later, I also adopted the task of creating data visualizations. My DS partner 
+									worked primarily on our Data Science flask API to connect our model to both the iOS and 
+									web app teams. I spent most of the five weeks of build-time alternating between 
 									Jupyter Notebooks and pair programming with my DS partner to integrate our model 
 									into our API.
                                 </p>
@@ -67,9 +67,9 @@
 									We anticipated limitations to our photo hosting and speed while pulling from our 
 									app's two independently developed back-ends. Although based upon our initial set of
 									data our app could be scaled up to include over 3,000 US cities larger than ten thousand,
-									we decided to use lighter and more managable data set for short build time.
+									we decided to use a lighter and more manageable data set for short build time.
 									Our API would give our web developers access to 189 city features ranging from: 
-									crime safety ratings, economic growth factors, school ratings, diversity, air 
+									crime and safety ratings, economic growth factors, school ratings, diversity, air 
 									quality, etc., and cover the largest 256 cities in the US with populations of 100,000
 									or more. 
 								</p>
@@ -77,7 +77,12 @@
                                     <h4>First Steps: ranking cities by multiple factors</h4>
                                 </header>
 								<p>
-									The overall goal was for the first release cycle was for our model to return a list of top recommendations based upon which factors a user selected as important to them. The hope was to eventually add sliders to each selected feature, to be able to weigh relative importance of each factor. Even with this relatively tiny data set and without adding weighted relative importance, the number of possible ranked lists based exceeds 3*10³⁴⁹; my team needed a live model. 
+									The overall goal for the first release cycle was for our model to return a 
+									list of top recommendations based upon factors a user selected as important.
+									 The hope was to eventually add sliders to each selected feature, to be 
+									able to weigh the relative importance of each factor. Even with this relatively 
+									tiny data set, even without improving the model, the number of 
+									possible ranked lists based exceeds 3*10³⁴⁹; my team needed a live model. 
 								</p>
 								<p>
 									First I created a simple function using pandas manipulations.
@@ -103,7 +108,7 @@ def rankify(df, factors, top=10, quant=.75):
                                     <h4>Issues to Resolve</h4>
                                 </header>
 								<p>
-									1. Different factors were on vastly difference scales. For example, 
+									1. Different factors were on vastly different scales. For example, 
 									population might vary on the scale of millions, while economic growth usually  
 									varies on partial  percentages. Initially, whichever factor had the biggest numbers had 
 									the biggest influence on the overall rank. To begin to fix this, I used a 
@@ -114,7 +119,7 @@ def rankify(df, factors, top=10, quant=.75):
 									 distribution. Since distributions were not all skewed in the same direction, 
 									comparing the upper quartile of each factor once again resulted in a varied range.
 									This time, the model favored factors with a right skew in distribution. I then 
-									turned to a robust scaler, that redistributed each quartile, but the results still
+									turned to a robust scaler, that redistributing each quartile, but the results were still
 									somewhat biased towards certain initial distributions. 
 								</p>
 
@@ -153,7 +158,7 @@ robust_df[numeric.columns] = df_temp</code></pre>
 									Even while the scale was made the same between factors, the skew of 
 									distribution was widely different from one factor to another. If a 
 									factor had a strong right-skew (left leaning) distribution, then the 
-									resulting upper quartile was had a bigger range than if it were left-skewed. 
+									resulting upper quartile had a bigger range than if it were left-skewed. 
 									This gave more influence to factors with right-leaning distributions. I had 
 									to find a way to create perfectly uniform distributions for each factor. 
 								</p>
@@ -171,41 +176,41 @@ robust_df[numeric.columns] = df_temp</code></pre>
 								</p>
 								<p>
 									By the time I had resolved these issues with data distribution, my Data Science
-									partner had developed a rudamentary flask API, deployed it Heroku, and was serving 
+									partner had developed a rudimentary flask API, deployed it on Heroku, and was serving 
 									results from my initial function to the Front End of our Web Dev team. Even while the 
-									initial results were nonsensical the team was able to build around the model until it 
-									was improved. Updated the data base to improve the results was a seemless push, with 
-									complete seperation of our respective concerns. Then when the average was taken across multiple
+									initial results were nonsensical, the team was able to build around the model until it 
+									was improved. Updating the database to improve the results was a seamless push, with a 
+									complete separation of our respective concerns. Then when the average was taken across multiple
 									factors no bias was given. 
 								</p>
 								<br>
 								<h2>Release Cycle 2: Data Visualization</h2>
 								<p>
 									After experimenting with color pallets and other package versions of a vertically 
-									stacked bar graph, I decided that to do something a little more unique with my data 
+									stacked bar graph, I decided to do something a little more unique with my data 
 									visualization. I really like the way violin plots make it easy to compare 
 									distributions of a handful of factors all at once.
 								</p>
 								<p>
-									My first itereation was the most simple - a vertically stacked bar chart using Plotly. A user could see,
+									My first iteration was the most simple - a vertically stacked bar chart using Plotly. A user could see,
 									for example, that Portland ranks higher than Pittsburgh when combining each selected factor,
-									but that the cost of living and economic growth rates are far superior in Pittspurgh.
+									but that the cost of living and economic growth rates are far superior in Pittsburgh.
 								</p>
 								<p>
-									First I started by graphing one Violin Plot using the seaborn library.
+									First I started by graphing one Violin Plot using the Seaborn library.
 								</p>
 								<pre><code>import seaborn as sns
 sns.set(style="whitegrid")
 ax = sns.violinplot(x=redu_df['avg_commute_time'])</code></pre>
 								<span class="image left"><img src="images\violin_plot_1factor.JPG" alt="" /></span>
 								<p>
-									Although the above seaborn violin plot is essentially the same as a Kernel Density Estimate 
+									Although the above Seaborn violin plot is essentially the same as a Kernel Density Estimate 
 									plot, the mirrored effect in combination with an overlay of a box 
 									plot gives a user a lot of information in one spot. Here we see 
 									that the medium of average commute times is just over 25 minutes,
 									 while the vast majority of average commute times for our 256 cities
 									  is below 35 minutes. We can see that there are few outliers to the 
-									  extreme right where some cities' commuters spend about 45 minutes
+									  extreme right where some city's commuters spend about 45 minutes
 									   on average.
 								</p>
 								<p>
@@ -237,24 +242,24 @@ plt.axvline(x=.7)</code></pre>
 								<p>
 									Although, again this information is essentially nothing more than a distribution 
 									plot, swarm plots are especially good at accessing a visual understanding 
-									of where clusters are at in the data. Looking again at the bipolar distribution 
+									of where clusters are in the data. Looking again at the bipolar distribution 
 									of education ratings, for example, with this plot one can see that there is a 
-									rather large cluster to the left around 0.2 tapering out slowly toward the
+									rather large cluster to the left around 0.2, tapering out slowly toward the
 									 center. Whereas on the right side of the education distribution there appears
 									  to be a push to be in the top 25%. While the violin plot is more immediately
-									   accessible, it smooths our these nuances.
+									   accessible, it smooths out these nuances.
 								</p>
 								<p>
-									So, why not combine the two graphs? Do so is not more complicated than 
+									So, why not combine the two graphs? Doing so is no more complicated than 
 									calling them both on the same axis and changing the colors of the overlaid
 									 plot.
 								</p>
 								<span class="image main"><img src="images\swarm_violin.png" alt="" /></span>
 								<p>
 									My UX designer decided that these plots were too difficult to interpret and 
-									asked me for something that was more simple and easy to understand. After some 
-									back and forth, I came up with the idea of a "slug plot" and went back to 
-									MatPlotLib to get extra control of fine details.
+									asked me for something that was more easy for a user to understand. After some 
+									back and forth, we came up with the idea of a "slug plot". I went back to 
+									MatPlotLib to get extra control of the fine graphing details.
 								</p>
 								<pre><code>import scipy.stats as stats
 import numpy as np
@@ -300,10 +305,10 @@ def displot(df, city, factor):
 plot(df=redu_df, city='Portland', factor='score_outdoors')</code></pre>
 								<span class="image main"><img src="images\slug_plot.png" alt="" /></span>
 								<p>
-									MatPlotLib is always a lot of code for a single graph, but it's always my 
-									go-to when I need to do something truly custom. The idea of my "slug plot" 
+									MatPlotLib is always turns into a lot of code, but it's my 
+									go-to when I need to really fine tune a graph. The idea of my "slug plot" 
 									distribution was that I could build it into a function and produce however
-									 many of the plots needs for a given city and a list of important factors. 
+									 many of the plots needed for a given city and a list of important factors. 
 									 Being squished horizontally, my web folk could provide the user with a number
 									  of stacked distributions for easy comparison. Well, my web folk thought it 
 									  was too boring, plus they didn't want to have to deal with designing around 
@@ -312,7 +317,7 @@ plot(df=redu_df, city='Portland', factor='score_outdoors')</code></pre>
 								<p>
 									It was back to the drawing board again. I was asked to make a visual that compared
 									 multiple factors for a given city with as much bang for my buck in a single 
-									 API served data visual. So I made this.
+									 API served data visual. So I once again used MatPlotLib to make this:
 								</p>
 								<pre><code>import numpy as np
 import matplotlib.pyplot as plt
@@ -378,9 +383,9 @@ radar_plt()</code></pre>
 								</p>
 								<p>
 									In the following three weeks, my web design partners once again 
-									redesigned the data visual for this project in our native Javascript 
-									back-end to increase the loading speed of our app. All that I had 
-									contributed to this aspect of the project lives on in branch history. 
+									redesigned the data visual for this project and re-wrote the data visuals in our native Javascript 
+									back-end to increase the loading speed of our app. All that I 
+									contributed to this aspect of the project lives on in branch history and Notion documentation.
 									Se la vie.
 								</p>
 

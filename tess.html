@@ -45,9 +45,9 @@
 								<header class="major">
                                     <h1>TESS Planet Finding App</h1>
 								</header>
-								<h4>Core of the project: a model to catagorize light-curves</h4>
-                                <p>NASA's TESS satellite is a started taking light readings of 200,000 of the brightest, 
-									closest stars in 2018. They expect to find about 300 earth-sized exoplanets within the 
+								<h4>Core of the project: a model to CATEGORIZE light-curves</h4>
+                                <p>NASA's TESS satellite started taking light readings of 200,000 of the brightest, 
+									closest stars in 2018. Nasa expects to find about 300 earth-sized exoplanets within the 
 									next year. Data from this on-going project is being made available to the public. For 
 									my very first co-op project, another Data Science student and I paired up to see if 
 									we could find anything interesting.
@@ -60,8 +60,8 @@
 									To be clear, neither of us are astrophysicists. Nonetheless, after brainstorming 
 									together, we came up with a way for a way that machine learning might contribute to 
 									NASA's project without any reference to physics. To train a classification model, 
-									all we needed was a set of data to train on with and without exoplanets -think  
-									hotdog / not a hotdog from the show Silicone Valley. We had access to the the raw 
+									all we needed was a set of data to train on both with and without exoplanets - think  
+									hotdog / not a hotdog from the show Silicon Valley. We had access to the raw 
 									data without any classification. If we could get a list of stars in the data that had 
 									already been established as likely to have planets, then we were in business.
 								</p>
@@ -88,7 +88,7 @@
 									least one planet. 
 									
 									The power of this approach, though it could never 
-									stand alone, is that it allows us to look for patterns that were not necessarily 
+									stand alone, is that it allows us to look for patterns that we were not 
 									looking for explicitly. While initially physics might find probable planets in the 
 									data using rigid and well defined rules, our secondary / piggy-back approach allowed 
 									us to look for general patterns. Most notably, we are not really able to say exactly 
@@ -237,11 +237,11 @@ for url in lcs_for_29781292:
 								<p>
 									For the sample star chosen for this example there were another 12 plots 
 									like the one above plotted from the code block above. Some stars had 
-									several of dataproducts, while others had none.
+									several dataproducts, while others had none.
 								</p>
 								<p>
 									For most stars, the data plots below were also available. Again, 
-									information for how to do this was found from at 
+									information for how to do this was found
 									<a href='https://github.com/spacetelescope/notebooks/blob/master/notebooks/MAST/'>here</a>
 								</p>
 								<pre><code>import numpy as np
@@ -303,7 +303,7 @@ dataproducts.to_csv('dataproducts_example.csv')</code></pre>
 								<hr />
 
 								<h4>PART 2: BUILDING A PREDICTIVE MODEL</h4>
-								<p>Since we were going to need to get our data into SQL database, we started by pulling 
+								<p>Since we were going to need to get our data into a SQL database, we started by pulling 
 									our csv data saved above into a pandas df, transferred it into a sqlite db, then 
 									back into a pandas df, merged on the unique star number (TIC id).
 								</p>
@@ -417,7 +417,7 @@ print(f'Test Accuracy Score:', pipeline.score(X_test, y_test))</code></pre>
 
 								<h4>Part 3: Building our Model into an App</h4>
 								<p>
-									In a addition to building the model itself, my DS partner and I set out to create a 
+									In addition to building the model itself, my DS partner and I set out to create a 
 									simple interactive app with our findings. As a minimal product, we hoped for a user to 
 									be able to select a star from the data and see a light-curve graph with our model's 
 									predictions.
@@ -500,10 +500,10 @@ class TIC_Cat_Table(DB.Model):
 									https://github.com/mikedcurry/TESS_Flask_App/blob/master/App_TESS/Data_in.py								
 								</p>
 								<p>
-									The long code-block below is does essentially the same thing as in the Jupyter 
-									Notebook exert from Part 1 above. The difference here is that it uses OOP 
+									The long code-block below does essentially the same thing as in the Jupyter 
+									Notebook exerpt from Part 1 above. The difference here is that it uses OOP 
 									techniques to populate a SQL database. Everything is built into functions so 
-									that we can later build the routes to call them in the main py file or our app.
+									that we can later build the routes to call them in the main .py file or our app.
 								</p>
 								<span class="image center"><img src="images\data_in_visuals.JPG" alt="" /></span>
 								<span class="image center"><img src="images\get_toi_data.JPG" alt="" /></span>
@@ -512,7 +512,7 @@ class TIC_Cat_Table(DB.Model):
 								<span class="image center"><img src="images\data_in_final.JPG" alt="" /></span>
 
 								<p>
-									With our the architecture of our database set out, and our model built into a 
+									With the architecture of our database set out, and our model built into a 
 									callable function, we were ready to spend the last day of the project creating 
 									all the routes in our Flask App.
 								</p>
@@ -556,8 +556,8 @@ return app</code></pre>
 							<p>It doesn't look like much yet, but we got a web app deployed. 
 								Our PostgreSQL database is populated, and we have a functioning 
 								pipeline for our model. On the front end, which was built over the course of 
-								about two hours with virtually no experience with HMTL at the time, there is 
-								a table with a set of links to go to light curve graphs. 
+								about two hours with virtually no experience with HTML at the time, there is 
+								a table with a set of links to go to the light curve graphs. 
 							</p>
 							<p> Check out the deployed app. Be patient, it takes a few seconds to load. :D</p>
 							<ul class="actions special">
